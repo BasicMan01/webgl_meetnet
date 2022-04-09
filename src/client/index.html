@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+
+		<meta name="theme-color" content="#000000">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Metaverse</title>
+
+		<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+		<link rel="stylesheet" type="text/css" href="css/global.css">
+	</head>
+
+	<body>
+		<div id="webGlCanvas" oncontextmenu="return false"></div>
+
+		<div id="login" class="popover" style="display: none">
+			<div class="container">
+				<div>
+					<input type="text" id="ip" placeholder="xxx.xxx.xxx.xxx" value="" autocomplete="off">
+				</div>
+
+				<div>
+					<input type="text" id="nickname" maxlength="10" placeholder="Enter your Name" value="" autocomplete="off">
+				</div>
+
+				<div>
+					<input type="button" id="connect" value="Connect">
+				</div>
+
+				<div id="errorMessage"></div>
+			</div>
+		</div>
+
+		<script type="module" src="js/app.js"></script>
+
+		<noscript>Your browser does not support JavaScript!</noscript>
+	</body>
+</html>
