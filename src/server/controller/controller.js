@@ -43,7 +43,7 @@ class Controller {
 			}
 
 			socket.on('disconnect', function() {
-				this._platform.removePlayer(socket.id);
+				this._platform.removeUser(socket.id);
 			}.bind(this));
 
 			/*

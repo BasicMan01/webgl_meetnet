@@ -9,7 +9,7 @@ class User {
 
 		this._name = '';
 
-		this._position = new Vector3(0, 2.0, 0);
+		this._position = new Vector3(0.0, 0.0, 0.0);
 		this._rotation = new Vector3();
 	}
 

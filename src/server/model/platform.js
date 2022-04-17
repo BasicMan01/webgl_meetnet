@@ -65,7 +65,7 @@ class Game {
 		return false;
 	}
 
-	removePlayer(socketId) {
+	removeUser(socketId) {
 		if (this._socketIndex.hasOwnProperty(socketId)) {
 			delete this._socketIndex[socketId];
 		}
@@ -76,18 +76,18 @@ class Game {
 			}
 		}
 
-		console.log('Game::removePlayer ' + socketId);
+		console.log('Game::removeUser ' + socketId);
 	}
 
 	getPersonalData(socketId) {
 		if (this._socketIndex.hasOwnProperty(socketId)) {
 			for (let i = 0; i < this._config.getMaxUser(); ++i) {
 				if (this._users[i] !== null && socketId === this._users[i].getSocketId()) {
-					return [
-						this._users[i].getIndex(),
-						this._users[i].getName(),
-						this._users[i].getPosition()
-					]
+					return {
+						'index': this._users[i].getIndex(),
+						'name': this._users[i].getName(),
+						'position': this._users[i].getPosition()
+					};
 				}
 			}
 		}
@@ -100,10 +100,8 @@ class Game {
 			this._socketIndex[socketId].setName(name.substring(0, 10));
 		}
 	}
+
 	/*
-
-
-
 
 	getSocketData() {
 		let data = {};
@@ -142,9 +140,6 @@ class Game {
 		return '';
 	}
 
-
-	*/
-
 	_countPlayer() {
 		let count = 0;
 
@@ -156,6 +151,8 @@ class Game {
 
 		return count;
 	}
+
+	*/
 }
 
 module.exports = Game;

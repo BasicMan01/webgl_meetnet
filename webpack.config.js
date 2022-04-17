@@ -16,12 +16,12 @@ module.exports = {
 					to: './'
 				},
 				{
-					from: './src/client/css/global.css',
+					from: './src/client/css/',
 					to: './css/'
 				},
 				{
-					from: './src/client/resources/model/house_001.glb',
-					to: './resources/model/'
+					from: './src/client/resources/',
+					to: './resources/'
 				}
 			]
 		})

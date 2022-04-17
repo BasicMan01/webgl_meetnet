@@ -65,7 +65,7 @@ class Controller {
 			// TODO: VALIDATION
 			let data = JSON.parse(msg);
 
-			this._view.initData(data);
+			this._view.init(data);
 		}.bind(this));
 
 		/*
