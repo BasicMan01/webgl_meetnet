@@ -1,5 +1,21 @@
 import * as THREE from 'three';
-import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls.js';
+
+/*
+import {
+	AnimationMixer,
+	Clock,
+	Color,
+	Fog,
+	GridHelper,
+	MOUSE,
+	PerspectiveCamera,
+	Scene,
+	sRGBEncoding,
+	Vector3,
+	WebGLRenderer
+} from 'three';
+*/
+
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -54,12 +70,13 @@ class View extends Observable {
 		this._scene.fog = new THREE.Fog(0xA0A0A0, 10, 50);
 
 		this._camera = new THREE.PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
-		this._camera.position.set(0, 2.5, 3.0);
+		this._camera.position.set(0, 2.5, -3.0);
 
 		this._renderer = new THREE.WebGLRenderer({antialias: true});
 		this._renderer.setPixelRatio(window.devicePixelRatio);
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
 		this._renderer.outputEncoding = THREE.sRGBEncoding;
+		this._renderer.gammaFactor = 2.2;
 
 		// add renderer to the DOM-Tree
 		this._canvas.appendChild(this._renderer.domElement);
@@ -71,22 +88,31 @@ class View extends Observable {
 		this._controls.maxDistance = 10.0;
 		this._controls.minPolarAngle = 0.1;
 		this._controls.maxPolarAngle = 1.7;
+		this._controls.mouseButtons = {
+			LEFT: THREE.MOUSE.ROTATE,
+			RIGHT: THREE.MOUSE.ROTATE
+		};
 		this._controls.target = new THREE.Vector3(0, 1.7, 0);
 		this._controls.update();
 
 		//this.userId = 0;
-		this._cube = null;
-		this._cubes = {};
 		this._character = null;
-		this._rotateY = new THREE.Vector3();
 		this._characterPosition = new THREE.Vector3();
+
+		this._mouseStatus = {
+			'left': false,
+			'right': false
+		};
 
 		this.keyStatus = {
 			65: false,
 			68: false,
 			83: false,
 			87: false
-		}
+		};
+
+		this._renderer.domElement.addEventListener('pointerdown', this._onPointerDownHandler.bind(this), false);
+		this._renderer.domElement.addEventListener('pointerup', this._onPointerUpHandler.bind(this), false);
 
 		window.addEventListener('keydown', this._onKeyDownHandler.bind(this), false);
 		window.addEventListener('keyup', this._onKeyUpHandler.bind(this), false);
@@ -133,11 +159,22 @@ class View extends Observable {
 		this._gridHelper = new THREE.GridHelper(50, 50);
 		this._scene.add(this._gridHelper);
 
-		this._hemisphereLight = new THREE.HemisphereLight('#DDEEFF', '#0F0E0D', 1.0);
+		this._ambientLight = new THREE.AmbientLight(0x101010);
+		this._scene.add(this._ambientLight);
+
+		this._hemisphereLight = new THREE.HemisphereLight(0xDDEEFF, 0x0F0E0D, 0.8);
 		this._scene.add(this._hemisphereLight);
 
+		this._directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+		this._directionalLight.position.set(20, 100, 10);
+		this._directionalLight.target.position.set(0, 0, 0);
+		this._scene.add(this._directionalLight);
 
+
+		this._fbxLoader = new FBXLoader();
 		this._gltfLoader = new GLTFLoader();
+
+
 		this._gltfLoader.load('resources/model/house_001.glb', function (object) {
 			this._scene.add(object.scene);
 		}.bind(this),
@@ -149,17 +186,17 @@ class View extends Observable {
 		});
 
 
-		this._fbxLoader = new FBXLoader();
 		this._fbxLoader.load('resources/model/character/character_001.fbx', function (object) {
 			this._character = object;
 			this._character.position.copy(this._characterPosition);
+
+			console.log(this._character);
 
 			this._scene.add(this._character);
 
 			this._mixer = new THREE.AnimationMixer(this._character);
 			this._mixer.clipAction(this._character.animations[2]).play();
 
-			console.log(this._character);
 			this._musicManager.play('bg_001');
 
 			this._render();
@@ -194,42 +231,35 @@ class View extends Observable {
 		let clockDelta = this._clock.getDelta();
 
 
-		// TODO: search a better solution
-		this._camera.getWorldDirection(this._rotateY);
-		this._rotateY.y = 0;
+
+		let forward = new THREE.Vector3(0, 0, 1);
+		forward.applyQuaternion(this._character.quaternion);
+		forward.normalize();
 
 		// for walk: clockDelta * 1.5
 		// for run: clockDelta * 3.0
-		let n = this._rotateY.normalize().clone().multiplyScalar(clockDelta * 1.5);
+		forward.multiplyScalar(clockDelta * 1.5);
 
-		this._rotateY.add(this._character.position);
+		if (this._mouseStatus.left) {
+			let rotation = new THREE.Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
 
-		// cube look at the same direction as camera
-		this._character.lookAt(this._rotateY);
-
-		if (this.keyStatus[87]) {
-			this._character.position.add(n);
-			this._camera.position.add(n);
+			this._character.rotation.y = rotation.y + Math.PI;
 		}
 
-		// orbit controls rotate around new cube position
-		//this._camera.lookAt(this._character);
+		if (this.keyStatus[87]) {
+			this._character.position.add(forward);
+			this._camera.position.add(forward);
+		}
+
+		// orbit controls rotate around new position
 		this._controls.target.copy(new THREE.Vector3(this._character.position.x, 1.7, this._character.position.z));
 		this._controls.update();
-
-		//if (this.cubes.hasOwnProperty(this.playerId - 1)) {
-			//this.camera.lookAt(this.cubes[this.playerId - 1]);
-		//}
-
-		//this._camera.position.y = 2.0;
-		//this._character.update();
-
-
 
 		this._mixer.update(clockDelta);
 
 		this._renderer.render(this._scene, this._camera);
 	};
+
 
 	_getCanvasHeight() { return this._canvas.offsetHeight; };
 	_getCanvasWidth() { return this._canvas.offsetWidth; };
@@ -284,6 +314,28 @@ class View extends Observable {
 		this._camera.updateProjectionMatrix();
 
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
+	};
+
+	_onPointerDownHandler(event) {
+		switch (event.button) {
+			case 0:
+				this._mouseStatus.left = true;
+				break;
+			case 2:
+				this._mouseStatus.right = true;
+				break;
+		}
+	};
+
+	_onPointerUpHandler(event) {
+		switch (event.button) {
+			case 0:
+				this._mouseStatus.left = false;
+				break;
+			case 2:
+				this._mouseStatus.right = false;
+				break;
+		}
 	};
 
 }

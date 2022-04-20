@@ -1,6 +1,7 @@
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+	devtool: false,
     entry: [
 		"./src/client/js/app.js"
 	],
