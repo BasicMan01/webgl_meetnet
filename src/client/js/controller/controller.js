@@ -1,4 +1,6 @@
 import { io } from 'socket.io-client';
+
+import Login from '../view/login.js';
 import View from '../view/view.js';
 
 class Controller {
@@ -6,29 +8,25 @@ class Controller {
 		console.log('START CONTROLLER');
 
 		this._socket = null;
+		this._login = null;
 		this._view = null;
 
 		this._init();
 	}
 
 	_init() {
-		this._view = new View();
-
-		this._view.showLogin(true);
-
-		this._view.addCallback('connectAction', this._connectAction.bind(this));
-		//this._view.addCallback('sendTransformDataAction', this.sendTransformDataAction.bind(this));
+		this._login = new Login();
+		this._login.addCallback('connectAction', this._connectAction.bind(this));
+		this._login.show();
 	}
 
 	_connectAction(args) {
-		this._view.showErrorMessage('Connect...');
+		this._login.setErrorMessage('Connect...');
 
-		console.log(io);
-		this._socket = io('http://' + args.ip + ':3000', {
-			reconnection: false
+		this._socket = io('ws://' + args.ip + ':3000', {
+			reconnection: false,
+			transports: ['websocket']
 		});
-
-		console.log(this._socket);
 
 		this._socket.on('connect', function() {
 			if (this._socket.connected) {
@@ -36,7 +34,7 @@ class Controller {
 
 				this._socket.emit('SN_CLIENT_NAME', args.nickname);
 
-				this._view.showLogin(false);
+				this._login.hide();
 			} else {
 				console.log('CONNECTION FAILED');
 			}
@@ -45,26 +43,30 @@ class Controller {
 		this._socket.on('disconnect', function() {
 			this._socket.close();
 
-			this._view.showErrorMessage('Disconnected');
-			this._view.showLogin(true);
+			this._view.destroy();
+
+			this._login.setErrorMessage('Disconnected');
+			this._login.show();
 		}.bind(this));
 
 		this._socket.on('connect_error', function(error) {
 			this._socket.close();
 
-			this._view.showErrorMessage('Connection Error');
+			this._login.setErrorMessage('Connection Error');
 		}.bind(this));
 
 		this._socket.on('connect_timeout', function(timeout) {
 			this._socket.close();
 
-			this._view.showErrorMessage('Connection Timeout');
+			this._login.setErrorMessage('Connection Timeout');
 		}.bind(this));
 
 		this._socket.on('SN_SERVER_INIT_DATA', function(msg) {
 			// TODO: VALIDATION
 			let data = JSON.parse(msg);
 
+			this._view = new View();
+			//this._view.addCallback('sendTransformDataAction', this.sendTransformDataAction.bind(this));
 			this._view.init(data);
 		}.bind(this));
 

@@ -20,7 +20,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import Observable from '../classes/observable.js';
+import Observable from '../interface/observable.js';
 
 import Character from '../classes/character.js';
 import InputManager from '../classes/inputManager.js';
@@ -97,6 +97,8 @@ class View extends Observable {
 		this._musicManager.add('bg_001', 'resources/music/bg_music_001.mp3');
 
 		this._soundManager = new SoundManager();
+		this._soundManager.add('crows', 'resources/sound/crows-and-other-birds.wav');
+		this._soundManager.add('owl', 'resources/sound/owl-hoot.wav');
 
 		this._character = new Character(this._inputManager, this._camera, this._controls);
 
@@ -107,17 +109,10 @@ class View extends Observable {
 		window.addEventListener('keydown', this._onKeyDownHandler.bind(this), false);
 		window.addEventListener('keyup', this._onKeyUpHandler.bind(this), false);
 		window.addEventListener('resize', this._onResizeHandler.bind(this), false);
+	}
 
-		document.getElementById('ip').value = location.host;
-		document.getElementById('connect').addEventListener('click', (event) => {
-			let ip = document.getElementById('ip').value;
-			let nickname = document.getElementById('nickname').value;
-
-			this.emit('connectAction', {
-				'ip': ip,
-				'nickname' : nickname
-			});
-		});
+	destroy() {
+		this._musicManager.stop();
 	}
 
 	init(data) {
@@ -128,18 +123,6 @@ class View extends Observable {
 		))
 
 		this._load();
-	}
-
-	showErrorMessage(message) {
-		document.getElementById('errorMessage').innerText = message;
-	}
-
-	showLogin(value) {
-		if (value) {
-			document.getElementById('login').style.display = '';
-		} else {
-			document.getElementById('login').style.display = 'none';
-		}
 	}
 
 
@@ -258,6 +241,14 @@ class View extends Observable {
 
 	_onKeyUpHandler(event) {
 		this._inputManager.setKeyState(event.keyCode, false);
+
+		if (event.keyCode === 49) {
+			this._soundManager.play('crows');
+		}
+
+		if (event.keyCode === 50) {
+			this._soundManager.play('owl');
+		}
 	};
 
 	_onPointerDownHandler(event) {

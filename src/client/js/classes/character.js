@@ -47,12 +47,19 @@ class Character {
 		this._model = model;
 		this._model.position.copy(this._position);
 
+		this._camera.position.copy(this._calculateCameraOffset());
+
 		// original wrong scale and animations
 		console.log('character', this._model);
 		//this._character.scale.setScalar(0.01);
 
 		this._mixer = new AnimationMixer(this._model);
 		console.log('mixer', this._mixer);
+
+		console.log(this._model.animations[2]);
+		console.log(this._mixer.clipAction(this._model.animations[2]));
+
+
 
 		this._animations['idle'] = {
 			'name': 'idle',
@@ -105,6 +112,14 @@ class Character {
 		this._mixer.update(timeDelta);
 	}
 
+	_calculateCameraOffset() {
+		let cameraOffset = new Vector3(0, 2.5, -3.0);
+
+		cameraOffset.applyQuaternion(this._model.quaternion);
+		cameraOffset.add(this._model.position);
+
+		return cameraOffset;
+	}
 
 	// TODO - State Machine
 	_setIdle(previewAction) {
