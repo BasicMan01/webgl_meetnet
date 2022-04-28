@@ -95,6 +95,14 @@ class Game {
 		return [];
 	}
 
+	getUserName(socketId) {
+		if (this._socketIndex.hasOwnProperty(socketId)) {
+			return this._socketIndex[socketId].getName();
+		}
+
+		return '';
+	}
+
 	setUserName(socketId, name) {
 		if (this._socketIndex.hasOwnProperty(socketId)) {
 			this._socketIndex[socketId].setName(name.substring(0, 10));
@@ -130,14 +138,6 @@ class Game {
 		if (this._socketIndex.hasOwnProperty(socketId)) {
 			this._socketIndex[socketId].setPosition(position);
 		}
-	}
-
-	getUserName(socketId) {
-		if (this._socketIndex.hasOwnProperty(socketId)) {
-			return this._socketIndex[socketId].getName();
-		}
-
-		return '';
 	}
 
 	_countPlayer() {

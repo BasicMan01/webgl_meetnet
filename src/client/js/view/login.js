@@ -4,7 +4,7 @@ class Login extends Observable {
 	constructor() {
 		super();
 
-		this._obj = document.getElementById('login');
+		this._login = document.getElementById('login');
 
 		document.getElementById('ip').value = location.host;
 		document.getElementById('connect').addEventListener('click', event => {
@@ -19,11 +19,11 @@ class Login extends Observable {
 	}
 
 	show() {
-		this._obj.style.display = '';
+		this._login.style.display = '';
 	}
 
 	hide() {
-		this._obj.style.display = 'none';
+		this._login.style.display = 'none';
 	}
 
 	setErrorMessage(message) {

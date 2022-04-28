@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 
+import Chat from '../view/chat.js';
 import Login from '../view/login.js';
 import View from '../view/view.js';
 
@@ -8,6 +9,8 @@ class Controller {
 		console.log('START CONTROLLER');
 
 		this._socket = null;
+
+		this._chat = null;
 		this._login = null;
 		this._view = null;
 
@@ -18,6 +21,9 @@ class Controller {
 		this._login = new Login();
 		this._login.addCallback('connectAction', this._connectAction.bind(this));
 		this._login.show();
+
+		this._chat = new Chat();
+		this._chat.addCallback('sendChatMessageAction', this._sendChatMessageAction.bind(this));
 	}
 
 	_connectAction(args) {
@@ -61,6 +67,10 @@ class Controller {
 			this._login.setErrorMessage('Connection Timeout');
 		}.bind(this));
 
+		this._socket.on('SN_SERVER_CHAT_MESSAGE', function(userName, msg) {
+			this._chat.addChatMessage(userName, msg);
+		}.bind(this));
+
 		this._socket.on('SN_SERVER_INIT_DATA', function(msg) {
 			// TODO: VALIDATION
 			let data = JSON.parse(msg);
@@ -79,6 +89,11 @@ class Controller {
 		}.bind(this));
 		*/
 	}
+
+	_sendChatMessageAction(args) {
+		this._socket.emit('SN_CLIENT_CHAT_MESSAGE', args.message);
+	}
+
 
 	/*
 	sendTransformDataAction(args) {

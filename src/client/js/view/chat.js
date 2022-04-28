@@ -3,5 +3,43 @@ import Observable from '../interface/observable.js';
 class Chat extends Observable {
 	constructor() {
 		super();
+
+		this._chatMessage = document.getElementById('chatMessage');
+
+		this._chatMessage.addEventListener('keydown', event => {
+			switch (event.code) {
+				case 'Enter': {
+					console.log(this._chatMessage.value);
+					this.emit('sendChatMessageAction', {
+						'message': this._chatMessage.value
+					});
+
+					this._chatMessage.value = '';
+				} break;
+			}
+
+			event.stopPropagation();
+		});
+
+		this._chatMessage.addEventListener('keyup', event => {
+			event.stopPropagation();
+		});
+	}
+
+	addChatMessage(userName, message) {
+		let chatMessages = document.getElementById('chatMessages')
+		let li = document.createElement('li');
+
+		li.innerHTML = '[' + userName + ']: ' + message;
+		//li.style.color = ''
+
+		if (userName === 'SYSTEM') {
+			li.style.style.fontStyle = "italic";
+		}
+
+		chatMessages.appendChild(li);
+		chatMessages.scrollTop = chatMessages.scrollHeight;
 	}
 }
+
+export default Chat;

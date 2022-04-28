@@ -52,6 +52,13 @@ class Controller {
 			}.bind(this));
 			*/
 
+			socket.on('SN_CLIENT_CHAT_MESSAGE', function(chatMessage) {
+				this._socketMessage.sendChatMessage(
+					this._platform.getUserName(socket.id),
+					chatMessage
+				);
+			}.bind(this));
+
 			socket.on('SN_CLIENT_NAME', function(userName) {
 				this._platform.setUserName(socket.id, userName);
 			}.bind(this));
