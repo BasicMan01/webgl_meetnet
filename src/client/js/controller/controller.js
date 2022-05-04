@@ -76,30 +76,25 @@ class Controller {
 			let data = JSON.parse(msg);
 
 			this._view = new View();
-			//this._view.addCallback('sendTransformDataAction', this.sendTransformDataAction.bind(this));
+			this._view.addCallback('sendTransformDataAction', this._sendTransformDataAction.bind(this));
 			this._view.init(data);
 		}.bind(this));
 
-		/*
-		this._socket.on('SN_SERVER_MESSAGE', function(msg) {
-			// TODO VALIDATION
+		this._socket.on('SN_SERVER_TRANSFORM_DATA', function(msg) {
+			// TODO: VALIDATION
 			let data = JSON.parse(msg);
 
-			this._view.updateData(data);
+			this._view.update(data);
 		}.bind(this));
-		*/
 	}
 
 	_sendChatMessageAction(args) {
 		this._socket.emit('SN_CLIENT_CHAT_MESSAGE', args.message);
 	}
 
-
-	/*
-	sendTransformDataAction(args) {
-		this._socket.emit('SN_CLIENT_TRANSFORM_DATA', args.keyCode);
+	_sendTransformDataAction(args) {
+		this._socket.emit('SN_CLIENT_TRANSFORM_DATA', args);
 	}
-	*/
 }
 
 export default Controller;

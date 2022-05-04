@@ -15,10 +15,19 @@ class Character {
 		this._name = '';
 		this._model = null;
 		this._animations = {};
-		this._position = new Vector3();
+		//this._position = new Vector3();
 
 		this._mixer = null;
 		this._currentAnimation = null;
+
+		// test
+		this.id = 0;
+		this.loaded = false;
+		this.localUser = false;
+	}
+
+	getAnimationStateName() {
+		return this._currentAnimation.name;
 	}
 
 	setAnimationState(state) {
@@ -45,21 +54,15 @@ class Character {
 
 	setModel(model) {
 		this._model = model;
-		this._model.position.copy(this._position);
 
-		this._camera.position.copy(this._calculateCameraOffset());
+		if (this.localUser) {
+			this._camera.position.copy(this._calculateCameraOffset());
+		}
 
 		// original wrong scale and animations
-		console.log('character', this._model);
 		//this._character.scale.setScalar(0.01);
 
 		this._mixer = new AnimationMixer(this._model);
-		console.log('mixer', this._mixer);
-
-		console.log(this._model.animations[2]);
-		console.log(this._mixer.clipAction(this._model.animations[2]));
-
-
 
 		this._animations['idle'] = {
 			'name': 'idle',
@@ -73,41 +76,70 @@ class Character {
 		this.setAnimationState('idle');
 	}
 
+	getPosition() {
+		return this._model.position;
+	}
+
 	setPosition(vector3) {
-		this._position.copy(vector3);
+		this._model.position.copy(vector3);
+	}
+
+	getRotation() {
+		return this._model.quaternion;
+	}
+
+	setRotation(quaternion) {
+		this._model.quaternion.copy(quaternion);
 	}
 
 	update(timeDelta) {
-		if (this._inputManager.getKeyState(InputManager.KEY_W)) {
-			this.setAnimationState('walk');
+		if (!this.loaded) {
+			return;
+		}
+
+		if (this.localUser) {
+			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
+				this.setAnimationState('walk');
+			} else {
+				this.setAnimationState('idle');
+			}
+
+
+			let forward = new Vector3(0, 0, 1);
+			forward.applyQuaternion(this._model.quaternion);
+			forward.normalize();
+
+			// for walk: timeDelta * 1.5
+			// for run: timeDelta * 3.0
+			forward.multiplyScalar(timeDelta * 1.5);
+
+			if (this._inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
+				let rotation = new Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
+
+				this._model.rotation.y = rotation.y + Math.PI;
+			}
+
+			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
+				this._model.position.add(forward);
+				this._camera.position.add(forward);
+			}
+
+			// orbit controls rotate around new position
+			this._controls.target.copy(new Vector3(this._model.position.x, 1.7, this._model.position.z));
+			this._controls.update();
 		} else {
-			this.setAnimationState('idle');
-		}
+			/*
+			let forward = new Vector3(0, 0, 1);
+			forward.applyQuaternion(this._model.quaternion);
+			forward.normalize();
 
+			// for walk: timeDelta * 1.5
+			// for run: timeDelta * 3.0
+			forward.multiplyScalar(timeDelta * 1.5);
 
-		let forward = new Vector3(0, 0, 1);
-		forward.applyQuaternion(this._model.quaternion);
-		forward.normalize();
-
-		// for walk: timeDelta * 1.5
-		// for run: timeDelta * 3.0
-		forward.multiplyScalar(timeDelta * 1.5);
-
-		if (this._inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
-			let rotation = new Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
-
-			this._model.rotation.y = rotation.y + Math.PI;
-		}
-
-		if (this._inputManager.getKeyState(InputManager.KEY_W)) {
 			this._model.position.add(forward);
-			this._camera.position.add(forward);
+			*/
 		}
-
-		// orbit controls rotate around new position
-		this._controls.target.copy(new Vector3(this._model.position.x, 1.7, this._model.position.z));
-		this._controls.update();
-
 
 		this._mixer.update(timeDelta);
 	}

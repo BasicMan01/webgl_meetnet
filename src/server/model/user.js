@@ -1,16 +1,23 @@
+let Quaternion = require('../classes/quaternion');
 let Vector3 = require('../classes/vector3');
 
 class User {
-	constructor(config, socketId, index) {
-		this._config = config;
-
-		this._socketId = socketId;
-		this._index = index;
-
+	constructor(id) {
+		this._id = id;
 		this._name = '';
+		this._online = false;
 
-		this._position = new Vector3(0.0, 0.0, 0.0);
-		this._rotation = new Vector3();
+		this._state = 'idle';
+		this._position = new Vector3();
+		this._rotation = new Quaternion();
+	}
+
+	isOnline() {
+		return this._online;
+	}
+
+	setOnline(online) {
+		this._online = online;
 	}
 
 	getPosition() {
@@ -21,14 +28,21 @@ class User {
 		};
 	}
 
-	setPosition(x, y, z) {
-		this._position.x = x;
-		this._position.y = y;
-		this._position.z = z;
+	setPosition(position) {
+		this._position.fromArray(position);
 	}
 
-	getIndex() {
-		return this._index;
+	getRotation() {
+		return {
+			'x': this._rotation.x,
+			'y': this._rotation.y,
+			'z': this._rotation.z,
+			'w': this._rotation.w
+		}
+	}
+
+	setRotation(rotation) {
+		this._rotation.fromArray(rotation);
 	}
 
 	getName() {
@@ -39,8 +53,33 @@ class User {
 		this._name = name;
 	}
 
-	getSocketId() {
-		return this._socketId;
+	getState() {
+		return this._state;
+	}
+
+	setState(state) {
+		this._state = state;
+	}
+
+	getCreationPackage() {
+		// TODO: Rename function later
+		return {
+			'id': this._id,
+			'name': this._name,
+			'position': this.getPosition(),
+			'rotation': this.getRotation(),
+			'state': this.getState()
+		};
+	}
+
+	getUpdatePackage() {
+		// TODO: Rename function later
+		return {
+			'id': this._id,
+			'position': this.getPosition(),
+			'rotation': this.getRotation(),
+			'state': this.getState()
+		};
 	}
 }
 

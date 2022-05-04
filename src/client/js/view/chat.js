@@ -9,7 +9,6 @@ class Chat extends Observable {
 		this._chatMessage.addEventListener('keydown', event => {
 			switch (event.code) {
 				case 'Enter': {
-					console.log(this._chatMessage.value);
 					this.emit('sendChatMessageAction', {
 						'message': this._chatMessage.value
 					});
@@ -34,7 +33,7 @@ class Chat extends Observable {
 		//li.style.color = ''
 
 		if (userName === 'SYSTEM') {
-			li.style.style.fontStyle = "italic";
+			li.style.fontStyle = "italic";
 		}
 
 		chatMessages.appendChild(li);

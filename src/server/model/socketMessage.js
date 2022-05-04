@@ -11,11 +11,9 @@ class SocketMessage {
 		this._io.to(socketId).emit('SN_SERVER_INIT_DATA', JSON.stringify(data));
 	}
 
-	/*
-	sendGameData(data) {
-		this._io.emit('SN_SERVER_MESSAGE', JSON.stringify(data));
+	sendWorldData(data) {
+		this._io.emit('SN_SERVER_TRANSFORM_DATA', JSON.stringify(data));
 	}
-	*/
 
 	_parseChatMessage(message) {
 		return message.replace(/>/g, '&gt;').replace(/</g, '&lt;');

@@ -1,16 +1,10 @@
 class Config {
 	constructor() {
-		this._maxUser = 8;
-
-		this._interval = 50;
+		this._interval = 25;
 	}
 
 	getInterval() {
 		return this._interval;
-	}
-
-	getMaxUser() {
-		return this._maxUser;
 	}
 }
 

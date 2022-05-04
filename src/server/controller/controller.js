@@ -24,19 +24,13 @@ class Controller {
 			console.log('user connected');
 
 			if (this._platform.addUser(socket.id)) {
-				let data = {
-					'personalData': this._platform.getPersonalData(socket.id),
-					'environmentData': {},
-					'userData': {}
-				};
-				/*
-				let data = {
-					'isCreator': this._game.isCreator(socket.id),
-					'playerData':
-				};
-				*/
+				let data = this._platform.getCreationPackage(socket.id);
 
 				this._socketMessage.sendUserData(socket.id, data);
+				this._socketMessage.sendChatMessage(
+					'SYSTEM',
+					this._platform.getUserName(socket.id) + '  joined the world'
+				);
 			} else {
 				console.log('user disconnected');
 				socket.disconnect(true);
@@ -46,11 +40,6 @@ class Controller {
 				this._platform.removeUser(socket.id);
 			}.bind(this));
 
-			/*
-			socket.on('SN_CLIENT_TRANSFORM_DATA', function(data) {
-				//this._game.setPosition(socket.id, parseInt(direction));
-			}.bind(this));
-			*/
 
 			socket.on('SN_CLIENT_CHAT_MESSAGE', function(chatMessage) {
 				this._socketMessage.sendChatMessage(
@@ -62,13 +51,18 @@ class Controller {
 			socket.on('SN_CLIENT_NAME', function(userName) {
 				this._platform.setUserName(socket.id, userName);
 			}.bind(this));
+
+			socket.on('SN_CLIENT_TRANSFORM_DATA', function(data) {
+				// TODO: Validation
+				this._platform.setTransformData(socket.id, data.position, data.rotation, data.state);
+			}.bind(this));
 		}.bind(this));
 
 		http.listen(3000, function(){
 			console.log('listening on *:3000');
 		});
 
-		//this._game.startAnimation()
+		this._platform.startAnimation();
 	}
 }
 

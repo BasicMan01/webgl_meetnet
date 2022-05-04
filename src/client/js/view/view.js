@@ -17,8 +17,6 @@ import {
 */
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import Observable from '../interface/observable.js';
 
@@ -89,6 +87,7 @@ class View extends Observable {
 		this._controls.update();
 
 
+		this._users = {};
 		this._objectManager = new ObjectManager();
 
 		this._inputManager = new InputManager();
@@ -100,15 +99,17 @@ class View extends Observable {
 		this._soundManager.add('crows', 'resources/sound/crows-and-other-birds.wav');
 		this._soundManager.add('owl', 'resources/sound/owl-hoot.wav');
 
-		this._character = new Character(this._inputManager, this._camera, this._controls);
-
-
 		this._renderer.domElement.addEventListener('pointerdown', this._onPointerDownHandler.bind(this), false);
 		this._renderer.domElement.addEventListener('pointerup', this._onPointerUpHandler.bind(this), false);
 
 		window.addEventListener('keydown', this._onKeyDownHandler.bind(this), false);
 		window.addEventListener('keyup', this._onKeyUpHandler.bind(this), false);
 		window.addEventListener('resize', this._onResizeHandler.bind(this), false);
+
+		// test vars
+		this._timeToSendTransformData = 0.0;
+
+		this._load();
 	}
 
 	destroy() {
@@ -116,16 +117,51 @@ class View extends Observable {
 	}
 
 	init(data) {
-		this._character.setPosition(new THREE.Vector3(
-			data.personalData.position.x,
-			data.personalData.position.y,
-			data.personalData.position.z
-		))
+		console.log('view:init', data);
+		this._character = new Character(this._inputManager, this._camera, this._controls);
+		this._character.id = data.id;
 
-		this._load();
+		this._users[data.id] = this._character;
+
+		this._objectManager.load('resources/model/character/character_001.fbx', (object) => {
+			this._scene.add(object);
+
+			this._character.setModel(object);
+			this._character.setPosition(new THREE.Vector3(data.position.x, data.position.y, data.position.z));
+			this._character.setRotation(new THREE.Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
+			this._character.setAnimationState(data.state);
+			this._character.loaded = true;
+			this._character.localUser = true;
+		});
 	}
 
+	update(data) {
+		for (let i = 0; i < data.user.length; ++i) {
+			if (this._users.hasOwnProperty(data.user[i].id)) {
+				// ignore current user
+				if (!this._users[data.user[i].id].localUser) {
+					this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
+					this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
+					this._users[data.user[i].id].setAnimationState(data.user[i].state);
+				}
+			} else {
+				let character = new Character();
+				character.id = data.id;
 
+				this._users[data.user[i].id] = character;
+
+				this._objectManager.load('resources/model/character/character_001.fbx', (object) => {
+					this._scene.add(object);
+
+					this._users[data.user[i].id].setModel(object);
+					this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
+					this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
+					this._users[data.user[i].id].setAnimationState(data.user[i].state);
+					this._users[data.user[i].id].loaded = true;
+				});
+			}
+		}
+	}
 
 	_load() {
 		this._gridHelper = new THREE.GridHelper(50, 50);
@@ -142,88 +178,37 @@ class View extends Observable {
 		this._directionalLight.target.position.set(0, 0, 0);
 		this._scene.add(this._directionalLight);
 
+		//this._musicManager.play('bg_001');
 
-		//this._objectManager.load('character_001', 'resources/model/character/character_001.fbx');
-
-		this._fbxLoader = new FBXLoader();
-		this._gltfLoader = new GLTFLoader();
-
-
-
-		this._gltfLoader.load('resources/model/house_001.glb', function (object) {
-			this._scene.add(object.scene);
-		}.bind(this),
-		function ( xhr ) {
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-		},
-		function ( error ) {
-			console.log( 'An error happened' );
-		});
-
-
-		/*
-		this._fbxLoader.load('resources/model/terrain.fbx', function (object) {
-			console.log(object);
+		this._objectManager.load('resources/model/house_001.glb', (object) => {
 			this._scene.add(object);
-		}.bind(this),
-		function ( xhr ) {
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-		},
-		function ( error ) {
-			console.log( 'An error happened' );
 		});
-		*/
 
-
-		this._fbxLoader.load('resources/model/character/character_001.fbx', function (object) {
-			this._character.setModel(object);
-
-			this._scene.add(object);
-
-
-			/*
-			this._fbxLoader.load('resources/model/animation/idle.fbx', function (animation) {
-				console.log('animation', animation);
-				this._mixer.clipAction(animation.animations[0]).play();
-
-				console.log('mixer', this._mixer);
-			}.bind(this));
-			*/
-
-			this._musicManager.play('bg_001');
-
-			this._render();
-		}.bind(this),
-		function ( xhr ) {
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-		},
-		function ( error ) {
-			console.log('An error happened', error);
-		});
+		this._render();
 	}
-
-	/*
-	updateData(data) {
-		for (let i = 0; i < data.player.length; ++i) {
-			let idx = data.player[i][0] - 1;
-			let color = data.player[i][1];
-			let position = data.player[i][3];
-
-			if (this.cubes.hasOwnProperty(idx)) {
-				// update
-			} else {
-				this.cubes[idx] = this.createCube(color, position);
-			}
-		}
-	}
-	*/
 
 	_render() {
 		requestAnimationFrame(this._render.bind(this));
 
 		let timeDelta = this._clock.getDelta();
 
-		this._character.update(timeDelta);
+		if (this._character && this._character.loaded) {
+			this._timeToSendTransformData += timeDelta;
+
+			if (this._timeToSendTransformData >= 0.05) {
+				this._timeToSendTransformData = 0.0;
+
+				this.emit('sendTransformDataAction', {
+					'position': this._character.getPosition().toArray(),
+					'rotation': this._character.getRotation().toArray(),
+					'state':  this._character.getAnimationStateName()
+				});
+			}
+		}
+
+		for (let userId in this._users) {
+			this._users[userId].update(timeDelta);
+		}
 
 		this._renderer.render(this._scene, this._camera);
 	};
