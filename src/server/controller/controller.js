@@ -11,6 +11,8 @@ let io = require('socket.io')(http, {
 
 class Controller {
 	constructor() {
+		this._port = process.env.SERVER_PORT || 3000;
+
 		this._config = new Config();
 		this._socketMessage = new SocketMessage(io);
 
@@ -58,9 +60,9 @@ class Controller {
 			}.bind(this));
 		}.bind(this));
 
-		http.listen(3000, function(){
-			console.log('listening on *:3000');
-		});
+		http.listen(this._port, function(){
+			console.log('listening on *:' + this._port);
+		}.bind(this));
 
 		this._platform.startAnimation();
 	}
