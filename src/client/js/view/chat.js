@@ -4,6 +4,7 @@ class Chat extends Observable {
 	constructor() {
 		super();
 
+		this._chat = document.getElementById('chat');
 		this._chatMessage = document.getElementById('chatMessage');
 
 		this._chatMessage.addEventListener('keydown', event => {
@@ -38,6 +39,14 @@ class Chat extends Observable {
 
 		chatMessages.appendChild(li);
 		chatMessages.scrollTop = chatMessages.scrollHeight;
+	}
+
+	show() {
+		this._chat.style.display = '';
+	}
+
+	hide() {
+		this._chat.style.display = 'none';
 	}
 }
 

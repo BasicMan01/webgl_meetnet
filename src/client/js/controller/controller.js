@@ -1,16 +1,16 @@
 import { io } from 'socket.io-client';
 
 import Chat from '../view/chat.js';
+import Connect from '../view/connect.js';
 import Login from '../view/login.js';
 import View from '../view/view.js';
 
 class Controller {
 	constructor() {
-		console.log('START CONTROLLER');
-
 		this._socket = null;
 
 		this._chat = null;
+		this._connect = null;
 		this._login = null;
 		this._view = null;
 
@@ -18,16 +18,22 @@ class Controller {
 	}
 
 	_init() {
+		this._connect = new Connect();
+		this._connect.addCallback('connectAction', this._connectAction.bind(this));
+		this._connect.show();
+
 		this._login = new Login();
-		this._login.addCallback('connectAction', this._connectAction.bind(this));
-		this._login.show();
+		this._login.addCallback('loginAction', this._loginAction.bind(this));
+
+		this._view = new View();
+		this._view.addCallback('sendTransformDataAction', this._sendTransformDataAction.bind(this));
 
 		this._chat = new Chat();
 		this._chat.addCallback('sendChatMessageAction', this._sendChatMessageAction.bind(this));
 	}
 
 	_connectAction(args) {
-		this._login.setErrorMessage('Connect...');
+		this._connect.setErrorMessage('Connect...');
 
 		this._socket = io('ws://' + args.ip + ':3000', {
 			reconnection: false,
@@ -35,15 +41,8 @@ class Controller {
 		});
 
 		this._socket.on('connect', function() {
-			if (this._socket.connected) {
-				console.log('CONNECTED');
-
-				this._socket.emit('SN_CLIENT_NAME', args.nickname);
-
-				this._login.hide();
-			} else {
-				console.log('CONNECTION FAILED');
-			}
+			this._connect.hide();
+			this._login.show();
 		}.bind(this));
 
 		this._socket.on('disconnect', function() {
@@ -51,32 +50,38 @@ class Controller {
 
 			this._view.destroy();
 
-			this._login.setErrorMessage('Disconnected');
-			this._login.show();
+			this._chat.hide();
+			this._login.hide();
+
+			this._connect.setErrorMessage('Disconnected');
+			this._connect.show();
 		}.bind(this));
 
 		this._socket.on('connect_error', function(error) {
+			// Fired when a namespace middleware error occurs.
 			this._socket.close();
 
-			this._login.setErrorMessage('Connection Error');
+			this._view.destroy();
+
+			this._chat.hide();
+			this._login.hide();
+
+			this._connect.setErrorMessage('Connection Error');
+			this._connect.show();
 		}.bind(this));
 
-		this._socket.on('connect_timeout', function(timeout) {
-			this._socket.close();
-
-			this._login.setErrorMessage('Connection Timeout');
-		}.bind(this));
 
 		this._socket.on('SN_SERVER_CHAT_MESSAGE', function(userName, msg) {
 			this._chat.addChatMessage(userName, msg);
 		}.bind(this));
 
-		this._socket.on('SN_SERVER_INIT_DATA', function(msg) {
+		this._socket.on('SN_SERVER_LOGIN', function(msg) {
+			this._login.hide();
+			this._chat.show();
+
 			// TODO: VALIDATION
 			let data = JSON.parse(msg);
 
-			this._view = new View();
-			this._view.addCallback('sendTransformDataAction', this._sendTransformDataAction.bind(this));
 			this._view.init(data);
 		}.bind(this));
 
@@ -86,6 +91,10 @@ class Controller {
 
 			this._view.update(data);
 		}.bind(this));
+	}
+
+	_loginAction(args) {
+		this._socket.emit('SN_CLIENT_LOGIN', args.name);
 	}
 
 	_sendChatMessageAction(args) {

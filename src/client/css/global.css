@@ -1,8 +1,10 @@
-* { box-sizing: border-box; }
+* {
+	box-sizing: border-box;
+}
 
 html, body {
 	background-color: black;
-	color: #00BBBB;
+	color: white;
 	font-family: 'Arial';
 	height: 100%;
 	margin: 0;
@@ -15,20 +17,20 @@ body {
 	line-height: 1.7;
 }
 
+input:focus {
+    outline: none;
+}
+
 #webGlCanvas  {
 	height: 100%;
 	width: 100%;
 }
 
-.left { float: left; }
-.right { float: right; }
 
-
-/***** LOGIN FORM *****/
+/***** CONNECT / LOGIN FORM *****/
 
 .popover {
 	align-items: center;
-	background: black;
 	display: flex;
 	height: 100%;
 	justify-content: center;
@@ -39,6 +41,7 @@ body {
 }
 
 .popover .container {
+	background: #00000080;
 	border: 2px solid #00BBBB;
 	border-radius: 5px;
 	padding: 30px;
@@ -46,95 +49,33 @@ body {
 }
 
 .popover .container input[type="button"],
-.popover .container input[type="range"],
 .popover .container input[type="text"] {
 	border: 2px solid #00BBBB;
 	border-radius: 5px;
-	color: #00BBBB;
+	color: inherit;
 	font-size: 18px;
 }
 
 .popover .container input[type="button"] {
-	background: #003333;
+	background: #006666;
 	cursor: pointer;
 	margin: 15px 0 15px 0;
 	padding: 10px;
 	width: 100%;
 }
 
-.popover .container .container-checkbox {
-	display: block;
-	position: relative;
-	padding-left: 45px;
-	margin: 15px 15px 15px 0;
-}
-
-.popover .container .container-checkbox input[type="checkbox"] {
-	display: none;
-}
-
-.popover .container .container-checkbox .checkbox-mark {
-	position: absolute;
-	top: 0;
-	left: 0;
-	height: 25px;
-	width: 25px;
-	background-color: #000000;
-	border: 2px solid #00BBBB;
-	border-radius: 5px;
-}
-
-.popover .container .container-checkbox input[type="checkbox"]:checked ~ .checkbox-mark {
-	background: #00BBBB;
-	box-shadow: inset 0px 0px 0px 5px #000000;
-}
-
-.popover .container input[type="range"] {
-	-webkit-appearance: none;
-	background: #00BBBB;
-	height: 4px;
-	margin: 25px 0 25px 0;
-	width: 100%;
-}
-
-.popover .container input[type="range"]:focus {
-	outline: none;
-}
-
-/*
-	Use a separete block for ::-moz-range-thumb and ::-webkit-slider-thumb.
-	For Edge browser ::-ms-thump does not working.
-*/
-
-.popover .container input[type="range"]::-moz-range-thumb {
-	background: #003333;
-	border: 2px solid #00BBBB;
-	border-radius: 5px;
-	height: 25px;
-	width: 12px;
-}
-
-.popover .container input[type="range"]::-webkit-slider-thumb {
-	-webkit-appearance: none;
-	background: #003333;
-	border: 2px solid #00BBBB;
-	border-radius: 5px;
-	height: 25px;
-	width: 12px;
-}
-
 .popover .container input[type="text"] {
-	background: #000000;
+	background: transparent;
 	margin: 15px 0 15px 0;
 	padding: 10px;
 	width: 100%;
 }
 
 .popover .container input[type="text"]::placeholder {
-	color: #006666;
+	color: #AAA;
 }
 
-.popover .container #errorMessage{
+.popover .container #connectMessage {
 	color: red;
 	font-size: 18px;
 	font-weight: bold;

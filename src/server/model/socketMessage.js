@@ -8,7 +8,7 @@ class SocketMessage {
 	}
 
 	sendUserData(socketId, data) {
-		this._io.to(socketId).emit('SN_SERVER_INIT_DATA', JSON.stringify(data));
+		this._io.to(socketId).emit('SN_SERVER_LOGIN', JSON.stringify(data));
 	}
 
 	sendWorldData(data) {

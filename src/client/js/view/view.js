@@ -117,7 +117,8 @@ class View extends Observable {
 	}
 
 	init(data) {
-		console.log('view:init', data);
+		this._musicManager.play('bg_001');
+
 		this._character = new Character(this._inputManager, this._camera, this._controls);
 		this._character.id = data.id;
 
@@ -177,8 +178,6 @@ class View extends Observable {
 		this._directionalLight.position.set(20, 100, 10);
 		this._directionalLight.target.position.set(0, 0, 0);
 		this._scene.add(this._directionalLight);
-
-		//this._musicManager.play('bg_001');
 
 		this._objectManager.load('resources/model/house_001.glb', (object) => {
 			this._scene.add(object);

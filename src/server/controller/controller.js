@@ -25,15 +25,7 @@ class Controller {
 		io.on('connection', function(socket){
 			console.log('user connected');
 
-			if (this._platform.addUser(socket.id)) {
-				let data = this._platform.getCreationPackage(socket.id);
-
-				this._socketMessage.sendUserData(socket.id, data);
-				this._socketMessage.sendChatMessage(
-					'SYSTEM',
-					this._platform.getUserName(socket.id) + '  joined the world'
-				);
-			} else {
+			if (!this._platform.addUser(socket.id)) {
 				console.log('user disconnected');
 				socket.disconnect(true);
 			}
@@ -50,8 +42,16 @@ class Controller {
 				);
 			}.bind(this));
 
-			socket.on('SN_CLIENT_NAME', function(userName) {
+			socket.on('SN_CLIENT_LOGIN', function(userName) {
 				this._platform.setUserName(socket.id, userName);
+
+				let data = this._platform.getCreationPackage(socket.id);
+
+				this._socketMessage.sendUserData(socket.id, data);
+				this._socketMessage.sendChatMessage(
+					'SYSTEM',
+					this._platform.getUserName(socket.id) + '  joined the world'
+				);
 			}.bind(this));
 
 			socket.on('SN_CLIENT_TRANSFORM_DATA', function(data) {

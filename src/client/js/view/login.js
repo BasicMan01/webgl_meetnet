@@ -5,15 +5,19 @@ class Login extends Observable {
 		super();
 
 		this._login = document.getElementById('login');
+		this._name = document.getElementById('name');
 
-		document.getElementById('ip').value = location.host;
-		document.getElementById('connect').addEventListener('click', event => {
-			let ip = document.getElementById('ip').value;
-			let nickname = document.getElementById('nickname').value;
+		this._name.addEventListener('keydown', event => {
+			event.stopPropagation();
+		});
 
-			this.emit('connectAction', {
-				'ip': ip,
-				'nickname' : nickname
+		this._name.addEventListener('keyup', event => {
+			event.stopPropagation();
+		});
+
+		document.getElementById('btnLogin').addEventListener('click', event => {
+			this.emit('loginAction', {
+				'name' : this._name.value
 			});
 		});
 	}
@@ -24,10 +28,6 @@ class Login extends Observable {
 
 	hide() {
 		this._login.style.display = 'none';
-	}
-
-	setErrorMessage(message) {
-		document.getElementById('errorMessage').innerText = message;
 	}
 }
 
