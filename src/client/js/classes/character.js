@@ -2,6 +2,7 @@ import {
 	AnimationMixer,
 	Box3,
 	Euler,
+	Group,
 	Vector3
 } from 'three';
 
@@ -9,24 +10,22 @@ import InputManager from './inputManager.js';
 import SpriteUtil from '../util/spriteUtil.js';
 
 class Character {
-	constructor(id, name, inputManager, camera, controls) {
+	constructor(id, name, inputManager, camera, controls, scene) {
 		this._camera = camera;
 		this._controls = controls;
+		this._scene = scene;
 		this._inputManager = inputManager;
 
 		this._id = id;
 		this._name = name;
 		this._model = null;
+		this._object = new Group();
 		this._animations = {};
-		//this._position = new Vector3();
 
 		this._mixer = null;
 		this._currentAnimation = null;
 
-		// test
-		this.id = 0;
-		this.loaded = false;
-		this.localUser = false;
+		this._scene.add(this._object);
 	}
 
 	getAnimationStateName() {
@@ -40,6 +39,10 @@ class Character {
 			if (previewAction.name === state) {
 				return;
 			}
+		}
+
+		if (!this._animations.hasOwnProperty(state)) {
+			return;
 		}
 
 		this._currentAnimation = this._animations[state];
@@ -57,11 +60,6 @@ class Character {
 
 	setModel(model) {
 		this._model = model;
-		this._model.add(this._createNameSprite());
-
-		if (this.localUser) {
-			this._camera.position.copy(this._calculateCameraOffset());
-		}
 
 		// original wrong scale and animations
 		//this._character.scale.setScalar(0.01);
@@ -78,30 +76,29 @@ class Character {
 		};
 
 		this.setAnimationState('idle');
+
+		this._object.add(this._model);
+		this._object.add(this._createNameSprite());
 	}
 
 	getPosition() {
-		return this._model.position;
+		return this._object.position;
 	}
 
 	setPosition(vector3) {
-		this._model.position.copy(vector3);
+		this._object.position.copy(vector3);
 	}
 
 	getRotation() {
-		return this._model.quaternion;
+		return this._object.quaternion;
 	}
 
 	setRotation(quaternion) {
-		this._model.quaternion.copy(quaternion);
+		this._object.quaternion.copy(quaternion);
 	}
 
 	update(timeDelta) {
-		if (!this.loaded) {
-			return;
-		}
-
-		if (this.localUser) {
+		if (this._inputManager) {
 			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
 				this.setAnimationState('walk');
 			} else {
@@ -110,7 +107,7 @@ class Character {
 
 
 			let forward = new Vector3(0, 0, 1);
-			forward.applyQuaternion(this._model.quaternion);
+			forward.applyQuaternion(this._object.quaternion);
 			forward.normalize();
 
 			// for walk: timeDelta * 1.5
@@ -120,21 +117,21 @@ class Character {
 			if (this._inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
 				let rotation = new Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
 
-				this._model.rotation.y = rotation.y + Math.PI;
+				this._object.rotation.y = rotation.y + Math.PI;
 			}
 
 			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
-				this._model.position.add(forward);
+				this._object.position.add(forward);
 				this._camera.position.add(forward);
 			}
 
 			// orbit controls rotate around new position
-			this._controls.target.copy(new Vector3(this._model.position.x, 1.7, this._model.position.z));
+			this._controls.target.copy(new Vector3(this._object.position.x, 1.7, this._object.position.z));
 			this._controls.update();
 		} else {
 			/*
 			let forward = new Vector3(0, 0, 1);
-			forward.applyQuaternion(this._model.quaternion);
+			forward.applyQuaternion(this._object.quaternion);
 			forward.normalize();
 
 			// for walk: timeDelta * 1.5
@@ -145,14 +142,20 @@ class Character {
 			*/
 		}
 
-		this._mixer.update(timeDelta);
+		if (this._mixer) {
+			this._mixer.update(timeDelta);
+		}
+	}
+
+	initCameraPosition() {
+		this._camera.position.copy(this._calculateCameraOffset());
 	}
 
 	_calculateCameraOffset() {
 		let cameraOffset = new Vector3(0, 2.5, -3.0);
 
-		cameraOffset.applyQuaternion(this._model.quaternion);
-		cameraOffset.add(this._model.position);
+		cameraOffset.applyQuaternion(this._object.quaternion);
+		cameraOffset.add(this._object.position);
 
 		return cameraOffset;
 	}
