@@ -56,7 +56,7 @@ class Platform {
 			return [];
 		}
 
-		return this._socketIndex[socketId].getCreationPackage();
+		return this._socketIndex[socketId].getNetworkPackage();
 	}
 
 	setTransformData(socketId, position, rotation, state) {
@@ -89,7 +89,7 @@ class Platform {
 
 		for (let socketId in this._socketIndex) {
 			if (this._socketIndex[socketId].isOnline()) {
-				data.user.push(this._socketIndex[socketId].getUpdatePackage());
+				data.user.push(this._socketIndex[socketId].getNetworkPackage());
 			}
 		}
 

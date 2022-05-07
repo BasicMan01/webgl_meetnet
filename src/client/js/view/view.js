@@ -119,8 +119,7 @@ class View extends Observable {
 	init(data) {
 		this._musicManager.play('bg_001');
 
-		this._character = new Character(this._inputManager, this._camera, this._controls);
-		this._character.id = data.id;
+		this._character = new Character(data.id, data.name, this._inputManager, this._camera, this._controls);
 
 		this._users[data.id] = this._character;
 
@@ -146,8 +145,7 @@ class View extends Observable {
 					this._users[data.user[i].id].setAnimationState(data.user[i].state);
 				}
 			} else {
-				let character = new Character();
-				character.id = data.id;
+				let character = new Character(data.user[i].id, data.user[i].name);
 
 				this._users[data.user[i].id] = character;
 

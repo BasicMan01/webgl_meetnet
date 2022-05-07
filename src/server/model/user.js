@@ -61,21 +61,10 @@ class User {
 		this._state = state;
 	}
 
-	getCreationPackage() {
-		// TODO: Rename function later
+	getNetworkPackage() {
 		return {
 			'id': this._id,
 			'name': this._name,
-			'position': this.getPosition(),
-			'rotation': this.getRotation(),
-			'state': this.getState()
-		};
-	}
-
-	getUpdatePackage() {
-		// TODO: Rename function later
-		return {
-			'id': this._id,
 			'position': this.getPosition(),
 			'rotation': this.getRotation(),
 			'state': this.getState()

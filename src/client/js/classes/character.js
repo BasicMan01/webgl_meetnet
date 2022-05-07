@@ -1,18 +1,21 @@
 import {
 	AnimationMixer,
+	Box3,
 	Euler,
 	Vector3
 } from 'three';
 
 import InputManager from './inputManager.js';
+import SpriteUtil from '../util/spriteUtil.js';
 
 class Character {
-	constructor(inputManager, camera, controls) {
+	constructor(id, name, inputManager, camera, controls) {
 		this._camera = camera;
 		this._controls = controls;
 		this._inputManager = inputManager;
 
-		this._name = '';
+		this._id = id;
+		this._name = name;
 		this._model = null;
 		this._animations = {};
 		//this._position = new Vector3();
@@ -54,6 +57,7 @@ class Character {
 
 	setModel(model) {
 		this._model = model;
+		this._model.add(this._createNameSprite());
 
 		if (this.localUser) {
 			this._camera.position.copy(this._calculateCameraOffset());
@@ -151,6 +155,19 @@ class Character {
 		cameraOffset.add(this._model.position);
 
 		return cameraOffset;
+	}
+
+	_createNameSprite() {
+		let box3 = new Box3();
+		let size = new Vector3();
+		let sprite = SpriteUtil.createSprite(this._name);
+
+		box3.setFromObject(this._model).getSize(size);
+
+		sprite.scale.set(1, 0.5, 1);
+		sprite.position.y += size.y + 0.2;
+
+		return sprite;
 	}
 
 	// TODO - State Machine
