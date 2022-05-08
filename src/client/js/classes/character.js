@@ -18,6 +18,7 @@ class Character {
 
 		this._id = id;
 		this._name = name;
+		this._localUser = inputManager ? true : false;
 		this._model = null;
 		this._object = new Group();
 		this._animations = {};
@@ -28,8 +29,12 @@ class Character {
 		this._scene.add(this._object);
 	}
 
+	isLocalUser() {
+		return this._localUser;
+	}
+
 	getAnimationStateName() {
-		return this._currentAnimation.name;
+		return this._currentAnimation ? this._currentAnimation.name : 'idle';
 	}
 
 	setAnimationState(state) {

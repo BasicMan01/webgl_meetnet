@@ -124,29 +124,29 @@ class View extends Observable {
 		this._character.setRotation(new THREE.Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
 		this._character.initCameraPosition();
 
-		this._users[data.id] = this._character;
-
 		this._objectManager.load('resources/model/character/character_001.fbx', (object) => {
 			this._character.setModel(object);
 			this._character.setAnimationState(data.state);
 		});
+
+		this._users[data.id] = this._character;
 	}
 
 	update(data) {
 		for (let i = 0; i < data.user.length; ++i) {
 			if (this._users.hasOwnProperty(data.user[i].id)) {
 				// ignore current user
-				if (!this._users[data.user[i].id].localUser) {
+				if (!this._users[data.user[i].id].isLocalUser()) {
+					console.log('update');
 					this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
 					this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
 					this._users[data.user[i].id].setAnimationState(data.user[i].state);
 				}
 			} else {
-				let character = new Character(data.user[i].id, data.user[i].name, null, null, this._scene);
+				this._users[data.user[i].id] = new Character(data.user[i].id, data.user[i].name, null, null, null, this._scene);
+
 				this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
 				this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
-
-				this._users[data.user[i].id] = character;
 
 				this._objectManager.load('resources/model/character/character_001.fbx', (object) => {
 					this._users[data.user[i].id].setModel(object);
@@ -183,10 +183,10 @@ class View extends Observable {
 
 		let timeDelta = this._clock.getDelta();
 
-		if (this._character && this._character.loaded) {
+		if (this._character) {
 			this._timeToSendTransformData += timeDelta;
 
-			if (this._timeToSendTransformData >= 0.05) {
+			if (this._timeToSendTransformData >= 0.1) {
 				this._timeToSendTransformData = 0.0;
 
 				this.emit('sendTransformDataAction', {
