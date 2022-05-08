@@ -1,6 +1,6 @@
 #chat {
 	background: #00000080;
-	border: 2px solid #00BBBB;
+	border: 2px solid var(--border-color);
 	border-radius: 5px;
 	bottom: 10px;
 	height: 250px;
@@ -12,10 +12,12 @@
 #chat input {
 	background: transparent;
 	border:	none;
-	border-top: 2px solid #00BBBB;
+	border-radius: 0;
+	border-top: 2px solid var(--border-color);
 	bottom: 0;
 	color: inherit;
 	font-size: 12px;
+	margin: 0;
 	padding: 5px;
 	position: absolute;
 	width: 100%;

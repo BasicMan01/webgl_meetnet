@@ -1,10 +1,16 @@
+:root {
+	--border-color: #00BBBB;
+	--text-color: #FFFFFF;
+	--placeholder-color: #AAAAAA;
+}
+
 * {
 	box-sizing: border-box;
 }
 
 html, body {
 	background-color: black;
-	color: white;
+	color: var(--text-color);
 	font-family: 'Arial';
 	height: 100%;
 	margin: 0;
@@ -17,18 +23,45 @@ body {
 	line-height: 1.7;
 }
 
-input:focus {
-    outline: none;
-}
-
 #webGlCanvas  {
 	height: 100%;
 	width: 100%;
 }
 
 
-/***** CONNECT / LOGIN FORM *****/
+/* FORMULAR */
 
+input[type="button"],
+input[type="text"] {
+	border: 2px solid var(--border-color);
+	border-radius: 5px;
+	color: inherit;
+	font-size: 18px;
+	margin: 15px 0 15px 0;
+	padding: 10px;
+	width: 100%;
+}
+
+input[type="button"] {
+	background: #006666;
+	cursor: pointer;
+}
+
+input[type="text"] {
+	background: transparent;
+}
+
+input[type="text"]:focus {
+    outline: none;
+}
+
+input[type="text"]::placeholder {
+	color: var(--placeholder-color);
+}
+
+
+
+/***** CONNECT / LOGIN FORM *****/
 .popover {
 	align-items: center;
 	display: flex;
@@ -42,37 +75,10 @@ input:focus {
 
 .popover .container {
 	background: #00000080;
-	border: 2px solid #00BBBB;
+	border: 2px solid var(--border-color);
 	border-radius: 5px;
 	padding: 30px;
 	width: 400px;
-}
-
-.popover .container input[type="button"],
-.popover .container input[type="text"] {
-	border: 2px solid #00BBBB;
-	border-radius: 5px;
-	color: inherit;
-	font-size: 18px;
-}
-
-.popover .container input[type="button"] {
-	background: #006666;
-	cursor: pointer;
-	margin: 15px 0 15px 0;
-	padding: 10px;
-	width: 100%;
-}
-
-.popover .container input[type="text"] {
-	background: transparent;
-	margin: 15px 0 15px 0;
-	padding: 10px;
-	width: 100%;
-}
-
-.popover .container input[type="text"]::placeholder {
-	color: #AAA;
 }
 
 .popover .container #connectMessage {
