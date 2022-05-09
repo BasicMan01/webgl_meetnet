@@ -26,6 +26,9 @@ import MusicManager from '../classes/musicManager.js';
 import SoundManager from '../classes/soundManager.js';
 import ObjectManager from '../classes/objectManager.js';
 
+import ShaderUtil from '../util/shaderUtil.js';
+
+
 
 /*
 //https://github.com/simondevyoutube/ThreeJS_Tutorial_ThirdPersonCamera/blob/main/main.js
@@ -108,6 +111,7 @@ class View extends Observable {
 
 		// test vars
 		this._timeToSendTransformData = 0.0;
+		this._shaderMaterial = null;
 
 		this._load();
 	}
@@ -173,6 +177,11 @@ class View extends Observable {
 
 		this._objectManager.load('resources/model/house_001.glb', (object) => {
 			this._scene.add(object);
+			this._shaderMaterial = new THREE.ShaderMaterial(ShaderUtil.wafeAnimation);
+
+			let shaderTarget = object.getObjectByName('GatewayShader');
+
+			shaderTarget.material = this._shaderMaterial;
 		});
 
 		this._render();
@@ -182,6 +191,10 @@ class View extends Observable {
 		requestAnimationFrame(this._render.bind(this));
 
 		let timeDelta = this._clock.getDelta();
+
+		if (this._shaderMaterial) {
+			this._shaderMaterial.uniforms.time.value += timeDelta;
+		}
 
 		if (this._character) {
 			this._timeToSendTransformData += timeDelta;
