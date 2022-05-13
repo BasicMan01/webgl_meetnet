@@ -17,6 +17,7 @@ import {
 */
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 
 import Observable from '../interface/observable.js';
 
@@ -58,6 +59,10 @@ class View extends Observable {
 		this._renderer = null;
 
 		this._gridHelper = null;
+
+		this._directionalLight = null;
+		this._hemisphereLight = null;
+		this._directionalLight = null;
 
 		this._clock = new THREE.Clock();
 		this._scene = new THREE.Scene();
@@ -117,8 +122,10 @@ class View extends Observable {
 		// test vars
 		this._timeToSendTransformData = 0.0;
 		this._shaderMaterial = null;
+		this._sunRotation = 0.0;
 
 		this._load();
+		this._createGui();
 	}
 
 	destroy() {
@@ -203,9 +210,11 @@ class View extends Observable {
 		this._scene.add(this._hemisphereLight);
 
 		this._directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
-		this._directionalLight.position.set(20, 100, 10);
-		this._directionalLight.target.position.set(0, 0, 0);
+		this._directionalLight.position.set(20, 100, 0);
 		this._scene.add(this._directionalLight);
+
+		this._directionalLightHelper = new THREE.DirectionalLightHelper(this._directionalLight, 5);
+		this._scene.add(this._directionalLightHelper);
 
 		this._objectManager.load('world', (key, object) => {
 			this._scene.add(object);
@@ -242,12 +251,119 @@ class View extends Observable {
 			}
 		}
 
+		/*
+		this._sunRotation += timeDelta * 0.1;
+
+		this._directionalLight.position.x = Math.sin(this._sunRotation) * 100.0;
+		this._directionalLight.position.y = Math.cos(this._sunRotation) * 100.0;
+
+		this._hemisphereLight.intensity = THREE.MathUtils.clamp(this._directionalLight.position.y / 100, 0, 1);
+
+		this._scene.background.setRGB(
+			200 * this._hemisphereLight.intensity / 255,
+			200 * this._hemisphereLight.intensity / 255,
+			255 * this._hemisphereLight.intensity / 255
+		);
+
+		this._scene.fog.color = this._scene.background;
+
+		this._directionalLightHelper.parent.updateMatrixWorld();
+		this._directionalLightHelper.update();
+		*/
+
 		for (let userId in this._users) {
 			this._users[userId].update(timeDelta);
 		}
 
 		this._renderer.render(this._scene, this._camera);
 	};
+
+	_createGui() {
+		const properties = {
+			'sceneBackground': this._scene.background,
+			'sceneFogColor': this._scene.fog.color,
+			'sceneFogNear': this._scene.fog.near,
+			'sceneFogFar': this._scene.fog.far,
+
+			'ambientColor': this._ambientLight.color,
+			'ambientIntensity': this._ambientLight.intensity,
+
+			'hemisphereSkyColor': this._hemisphereLight.color,
+			'hemisphereGroundColor': this._hemisphereLight.groundColor,
+			'hemisphereIntensity': this._hemisphereLight.intensity,
+
+			'directionalColor': this._directionalLight.color,
+			'directionalIntensity': this._directionalLight.intensity,
+			'diretionalPosX': this._directionalLight.position.x,
+			'diretionalPosY': this._directionalLight.position.y,
+			'diretionalPosZ': this._directionalLight.position.z
+		}
+
+		const gui = new GUI({ width: 310 });
+		const folderScene = gui.addFolder('Scene');
+		const folderAmbientLight = gui.addFolder('AmbientLight');
+		const folderHemisphereLight = gui.addFolder('HemisphereLight');
+		const folderDirectionalLight = gui.addFolder('DirectionalLight');
+
+		folderScene.addColor(properties, 'sceneBackground').onChange(function(value) {
+			this._scene.background.set(value);
+		}.bind(this));
+
+		folderScene.addColor(properties, 'sceneFogColor').onChange(function(value) {
+			this._scene.fog.color.set(value);
+		}.bind(this));
+
+		folderScene.add(properties, 'sceneFogNear', 0, 50).step(0.5).onChange(function(value) {
+			this._scene.fog.near = value;
+		}.bind(this));
+
+		folderScene.add(properties, 'sceneFogFar', 0, 50).step(0.5).onChange(function(value) {
+			this._scene.fog.far = value;
+		}.bind(this));
+
+
+		folderAmbientLight.addColor(properties, 'ambientColor').onChange(function(value) {
+			this._ambientLight.color.set(value);
+		}.bind(this));
+
+		folderAmbientLight.add(properties, 'ambientIntensity', 0, 2).step(0.01).onChange(function(value) {
+			this._ambientLight.intensity = value;
+		}.bind(this));
+
+
+		folderHemisphereLight.addColor(properties, 'hemisphereSkyColor').onChange(function(value) {
+			this._hemisphereLight.color.set(value);
+		}.bind(this));
+
+		folderHemisphereLight.addColor(properties, 'hemisphereGroundColor').onChange(function(value) {
+			this._hemisphereLight.groundColor.set(value);
+		}.bind(this));
+
+		folderHemisphereLight.add(properties, 'hemisphereIntensity', 0, 2).step(0.01).onChange(function(value) {
+			this._hemisphereLight.intensity = value;
+		}.bind(this));
+
+
+		folderHemisphereLight.addColor(properties, 'directionalColor').onChange(function(value) {
+			this._directionalLight.color.set(value);
+		}.bind(this));
+
+		folderDirectionalLight.add(properties, 'directionalIntensity', 0, 2).step(0.01).onChange(function(value) {
+			this._directionalLight.intensity = value;
+		}.bind(this));
+
+		folderDirectionalLight.add(properties, 'diretionalPosX', -50, 50).step(0.5).onChange(function(value) {
+			this._directionalLight.position.x = value;
+		}.bind(this));
+
+		folderDirectionalLight.add(properties, 'diretionalPosY', 1, 50).step(0.5).onChange(function(value) {
+			this._directionalLight.position.y = value;
+		}.bind(this));
+
+		folderDirectionalLight.add(properties, 'diretionalPosZ', -50, 50).step(0.5).onChange(function(value) {
+			this._directionalLight.position.z = value;
+		}.bind(this));
+	}
 
 
 	_getCanvasHeight() { return this._canvas.offsetHeight; };

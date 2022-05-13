@@ -64,8 +64,8 @@ input[type="text"]::placeholder {
 }
 
 
-
 /***** CONNECT / LOGIN FORM *****/
+
 .popover {
 	align-items: center;
 	display: flex;
@@ -89,4 +89,17 @@ input[type="text"]::placeholder {
 	color: red;
 	font-size: 18px;
 	font-weight: bold;
+}
+
+
+/* THIRD PARTY */
+
+.lil-gui input[type="text"] {
+	background: var(--widget-color);
+    border: 0;
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-size: var(--input-font-size);
+	margin: 0;
+    width: 100%;
 }
