@@ -7,7 +7,7 @@ class User {
 		this._name = '';
 		this._online = false;
 
-		this._state = 'idle';
+		this._state = 'character.animation.idle';
 		this._position = new Vector3();
 		this._rotation = new Quaternion();
 	}

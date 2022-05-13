@@ -5,50 +5,91 @@ class ObjectManager {
 	constructor() {
 		this._fbxLoader = new FBXLoader();
 		this._gltfLoader = new GLTFLoader();
+
+		this._objects = {};
 	}
 
-	load(path, callback) {
+	add(key, path) {
+		this._objects[key] = path;
+	}
+
+	load(key, callback) {
+		if (!this._objects.hasOwnProperty(key)) {
+			return;
+		}
+
+		let path = this._objects[key];
+
 		if (path.endsWith('.fbx')) {
-			this._loadFBX(path, callback);
+			return this._loadFBX(key, path, callback);
 		} else if (path.endsWith('.glb')) {
-			this._loadGLB(path, callback);
+			return this._loadGLB(key, path, callback);
 		}
 	}
 
-	_loadFBX(path, callback) {
-		this._fbxLoader.load(path, function (object) {
-			if (typeof callback === 'function') {
-				callback(object);
+	loadAll(keys, itemCallback, endCallback) {
+		let promises = [];
+
+		keys.forEach((key) => {
+			promises.push(this.load(key, itemCallback));
+		});
+
+		Promise.all(promises).then(values => {
+			if (typeof endCallback === 'function') {
+				endCallback();
 			}
-
-			/*
-			this._fbxLoader.load('resources/model/animation/idle.fbx', function (animation) {
-				console.log('animation', animation);
-				this._mixer.clipAction(animation.animations[0]).play();
-
-				console.log('mixer', this._mixer);
-			}.bind(this));
-			*/
-		}.bind(this),
-		function ( xhr ) {
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-		},
-		function ( error ) {
-			console.log('An error happened', error);
+		}).catch(err => {
+			console.error(err);
 		});
 	}
 
-	_loadGLB(path, callback) {
-		this._gltfLoader.load(path, function (object) {
-			if (typeof callback === 'function') {
-				callback(object.scene);
-			}
-		}.bind(this),
-		function ( xhr ) {
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-		},
-		function ( error ) {
-			console.log( 'An error happened' );
+	_loadFBX(key, path, callback) {
+		return new Promise((resolve, reject) => {
+			this._fbxLoader.load(
+				path,
+
+				object => {
+					if (typeof callback === 'function') {
+						callback(key, object);
+					}
+
+					console.info(path + ' successfully loaded');
+					resolve(object);
+				},
+
+				xhr => {
+					console.info((xhr.loaded / xhr.total * 10) + '% loaded');
+				},
+
+				err => {
+					reject(path + ' failed to load');
+				}
+			);
+		});
+	}
+
+	_loadGLB(key, path, callback) {
+		return new Promise((resolve, reject) => {
+			this._gltfLoader.load(
+				path,
+
+				object => {
+					if (typeof callback === 'function') {
+						callback(key, object.scene);
+					}
+
+					console.info(path + ' successfully loaded');
+					resolve(object);
+				},
+
+				xhr => {
+					console.info((xhr.loaded / xhr.total * 10) + '% loaded');
+				},
+
+				err => {
+					reject(path + ' failed to load');
+				}
+			);
 		});
 	}
 }

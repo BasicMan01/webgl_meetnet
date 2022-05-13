@@ -92,6 +92,11 @@ class View extends Observable {
 
 		this._users = {};
 		this._objectManager = new ObjectManager();
+		this._objectManager.add('world', 'resources/model/house_001.glb');
+		this._objectManager.add('character.female', 'resources/model/character/character_female.fbx');
+		this._objectManager.add('character.male', 'resources/model/character/character_male.fbx');
+		this._objectManager.add('character.animation.idle', 'resources/model/character/animation/idle.fbx');
+		this._objectManager.add('character.animation.walk', 'resources/model/character/animation/walk.fbx');
 
 		this._inputManager = new InputManager();
 
@@ -128,9 +133,23 @@ class View extends Observable {
 		this._character.setRotation(new THREE.Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
 		this._character.initCameraPosition();
 
-		this._objectManager.load('resources/model/character/character_001.fbx', (object) => {
+		this._objectManager.load('character.male', (key, object) => {
+			object.scale.setScalar(0.01);
+
 			this._character.setModel(object);
-			this._character.setAnimationState(data.state);
+
+			this._objectManager.loadAll(
+				[
+					'character.animation.idle',
+					'character.animation.walk'
+				],
+				(key, object) => {
+					this._character.addAnimation(key, object.animations[0]);
+				},
+				() => {
+					this._character.setAnimationState(data.state);
+				}
+			);
 		});
 
 		this._users[data.id] = this._character;
@@ -141,7 +160,6 @@ class View extends Observable {
 			if (this._users.hasOwnProperty(data.user[i].id)) {
 				// ignore current user
 				if (!this._users[data.user[i].id].isLocalUser()) {
-					console.log('update');
 					this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
 					this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
 					this._users[data.user[i].id].setAnimationState(data.user[i].state);
@@ -152,9 +170,23 @@ class View extends Observable {
 				this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
 				this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
 
-				this._objectManager.load('resources/model/character/character_001.fbx', (object) => {
+				this._objectManager.load('character.female', (key, object) => {
+					object.scale.setScalar(0.01);
+
 					this._users[data.user[i].id].setModel(object);
-					this._users[data.user[i].id].setAnimationState(data.user[i].state);
+
+					this._objectManager.loadAll(
+						[
+							'character.animation.idle',
+							'character.animation.walk'
+						],
+						(key, object) => {
+							this._users[data.user[i].id].addAnimation(key, object.animations[0]);
+						},
+						() => {
+							this._users[data.user[i].id].setAnimationState(data.user[i].state);
+						}
+					);
 				});
 			}
 		}
@@ -175,7 +207,7 @@ class View extends Observable {
 		this._directionalLight.target.position.set(0, 0, 0);
 		this._scene.add(this._directionalLight);
 
-		this._objectManager.load('resources/model/house_001.glb', (object) => {
+		this._objectManager.load('world', (key, object) => {
 			this._scene.add(object);
 			this._shaderMaterial = new THREE.ShaderMaterial(ShaderUtil.wafeAnimation);
 

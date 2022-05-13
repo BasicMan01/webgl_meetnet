@@ -34,7 +34,7 @@ class Character {
 	}
 
 	getAnimationStateName() {
-		return this._currentAnimation ? this._currentAnimation.name : 'idle';
+		return this._currentAnimation ? this._currentAnimation.name : 'character.animation.idle';
 	}
 
 	setAnimationState(state) {
@@ -53,34 +53,27 @@ class Character {
 		this._currentAnimation = this._animations[state];
 
 		switch (state) {
-			case 'idle':
+			case 'character.animation.idle':
 				this._setIdle(previewAction);
 				break;
 
-			case 'walk':
+			case 'character.animation.walk':
 				this._setWalk(previewAction);
 				break;
 		}
 	}
 
+	addAnimation(key, animation) {
+		this._animations[key] = {
+			'name': key,
+			'action': this._mixer.clipAction(animation)
+		};
+	}
+
 	setModel(model) {
 		this._model = model;
 
-		// original wrong scale and animations
-		//this._character.scale.setScalar(0.01);
-
 		this._mixer = new AnimationMixer(this._model);
-
-		this._animations['idle'] = {
-			'name': 'idle',
-			'action': this._mixer.clipAction(this._model.animations[2])
-		};
-		this._animations['walk'] = {
-			'name': 'walk',
-			'action': this._mixer.clipAction(this._model.animations[4])
-		};
-
-		this.setAnimationState('idle');
 
 		this._object.add(this._model);
 		this._object.add(this._createNameSprite());
@@ -105,9 +98,9 @@ class Character {
 	update(timeDelta) {
 		if (this._inputManager) {
 			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
-				this.setAnimationState('walk');
+				this.setAnimationState('character.animation.walk');
 			} else {
-				this.setAnimationState('idle');
+				this.setAnimationState('character.animation.idle');
 			}
 
 
@@ -180,7 +173,7 @@ class Character {
 
 	// TODO - State Machine
 	_setIdle(previewAction) {
-		let currentAction = this._animations['idle'].action;
+		let currentAction = this._animations['character.animation.idle'].action;
 
 		if (previewAction) {
 			currentAction.time = 0.0;
@@ -194,7 +187,7 @@ class Character {
 	}
 
 	_setWalk(previewAction) {
-		let currentAction = this._animations['walk'].action;
+		let currentAction = this._animations['character.animation.walk'].action;
 
 		if (previewAction) {
 			currentAction.time = 0.0;

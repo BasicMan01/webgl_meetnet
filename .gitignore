@@ -1,6 +1,9 @@
 .env
 .htaccess
 .vscode
+
+*.blend1
+
 /client
 /node_modules
 /temp
