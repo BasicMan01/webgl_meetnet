@@ -23,11 +23,11 @@ class Login extends Observable {
 	}
 
 	show() {
-		this._login.style.display = '';
+		this._login.classList.remove('hidden');
 	}
 
 	hide() {
-		this._login.style.display = 'none';
+		this._login.classList.add('hidden');
 	}
 }
 

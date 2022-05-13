@@ -42,11 +42,11 @@ class Chat extends Observable {
 	}
 
 	show() {
-		this._chat.style.display = '';
+		this._chat.classList.remove('hidden');
 	}
 
 	hide() {
-		this._chat.style.display = 'none';
+		this._chat.classList.add('hidden');
 	}
 }
 

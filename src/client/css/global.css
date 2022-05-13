@@ -28,6 +28,10 @@ body {
 	width: 100%;
 }
 
+.hidden {
+	visibility: hidden;
+}
+
 
 /* FORMULAR */
 

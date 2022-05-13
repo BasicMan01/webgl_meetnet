@@ -26,11 +26,11 @@ class Connect extends Observable {
 	}
 
 	show() {
-		this._connect.style.display = '';
+		this._connect.classList.remove('hidden');
 	}
 
 	hide() {
-		this._connect.style.display = 'none';
+		this._connect.classList.add('hidden');
 	}
 
 	setErrorMessage(message) {
