@@ -1,20 +1,22 @@
-import * as THREE from 'three';
-
-/*
 import {
-	AnimationMixer,
+	AmbientLight,
 	Clock,
 	Color,
+	DirectionalLight,
+	DirectionalLightHelper,
 	Fog,
 	GridHelper,
+	HemisphereLight,
+	MathUtils,
 	MOUSE,
 	PerspectiveCamera,
+	Quaternion,
 	Scene,
+	ShaderMaterial,
 	sRGBEncoding,
 	Vector3,
 	WebGLRenderer
 } from 'three';
-*/
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
@@ -28,8 +30,6 @@ import SoundManager from '../classes/soundManager.js';
 import ObjectManager from '../classes/objectManager.js';
 
 import ShaderUtil from '../util/shaderUtil.js';
-
-
 
 /*
 //https://github.com/simondevyoutube/ThreeJS_Tutorial_ThirdPersonCamera/blob/main/main.js
@@ -64,18 +64,18 @@ class View extends Observable {
 		this._hemisphereLight = null;
 		this._directionalLight = null;
 
-		this._clock = new THREE.Clock();
-		this._scene = new THREE.Scene();
-		this._scene.background = new THREE.Color(0xA0A0A0);
-		this._scene.fog = new THREE.Fog(0xA0A0A0, 10, 50);
+		this._clock = new Clock();
+		this._scene = new Scene();
+		this._scene.background = new Color(0x87CEFA);
+		this._scene.fog = new Fog(0x87CEFA, 10, 50);
 
-		this._camera = new THREE.PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
+		this._camera = new PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
 		this._camera.position.set(0, 2.5, -3.0);
 
-		this._renderer = new THREE.WebGLRenderer({antialias: true});
+		this._renderer = new WebGLRenderer({antialias: true});
 		this._renderer.setPixelRatio(window.devicePixelRatio);
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
-		this._renderer.outputEncoding = THREE.sRGBEncoding;
+		this._renderer.outputEncoding = sRGBEncoding;
 
 		// add renderer to the DOM-Tree
 		this._canvas.appendChild(this._renderer.domElement);
@@ -88,12 +88,11 @@ class View extends Observable {
 		this._controls.minPolarAngle = 0.1;
 		this._controls.maxPolarAngle = 1.7;
 		this._controls.mouseButtons = {
-			LEFT: THREE.MOUSE.ROTATE,
-			RIGHT: THREE.MOUSE.ROTATE
+			LEFT: MOUSE.ROTATE,
+			RIGHT: MOUSE.ROTATE
 		};
-		this._controls.target = new THREE.Vector3(0, 1.7, 0);
+		this._controls.target = new Vector3(0, 1.7, 0);
 		this._controls.update();
-
 
 		this._users = {};
 		this._objectManager = new ObjectManager();
@@ -136,28 +135,10 @@ class View extends Observable {
 		this._musicManager.play('bg_001');
 
 		this._character = new Character(data.id, data.name, this._inputManager, this._camera, this._controls, this._scene);
-		this._character.setPosition(new THREE.Vector3(data.position.x, data.position.y, data.position.z));
-		this._character.setRotation(new THREE.Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
+		this._character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));
+		this._character.setRotation(new Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
 		this._character.initCameraPosition();
-
-		this._objectManager.load('character.male', (key, object) => {
-			object.scale.setScalar(0.01);
-
-			this._character.setModel(object);
-
-			this._objectManager.loadAll(
-				[
-					'character.animation.idle',
-					'character.animation.walk'
-				],
-				(key, object) => {
-					this._character.addAnimation(key, object.animations[0]);
-				},
-				() => {
-					this._character.setAnimationState(data.state);
-				}
-			);
-		});
+		this._character.load(this._objectManager, 'character.male');
 
 		this._users[data.id] = this._character;
 	}
@@ -167,58 +148,40 @@ class View extends Observable {
 			if (this._users.hasOwnProperty(data.user[i].id)) {
 				// ignore current user
 				if (!this._users[data.user[i].id].isLocalUser()) {
-					this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
-					this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
+					this._users[data.user[i].id].setPosition(new Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
+					this._users[data.user[i].id].setRotation(new Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
 					this._users[data.user[i].id].setAnimationState(data.user[i].state);
 				}
 			} else {
 				this._users[data.user[i].id] = new Character(data.user[i].id, data.user[i].name, null, null, null, this._scene);
 
-				this._users[data.user[i].id].setPosition(new THREE.Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
-				this._users[data.user[i].id].setRotation(new THREE.Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
-
-				this._objectManager.load('character.female', (key, object) => {
-					object.scale.setScalar(0.01);
-
-					this._users[data.user[i].id].setModel(object);
-
-					this._objectManager.loadAll(
-						[
-							'character.animation.idle',
-							'character.animation.walk'
-						],
-						(key, object) => {
-							this._users[data.user[i].id].addAnimation(key, object.animations[0]);
-						},
-						() => {
-							this._users[data.user[i].id].setAnimationState(data.user[i].state);
-						}
-					);
-				});
+				this._users[data.user[i].id].setPosition(new Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
+				this._users[data.user[i].id].setRotation(new Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
+				this._users[data.user[i].id].load(this._objectManager, 'character.female');
 			}
 		}
 	}
 
 	_load() {
-		this._gridHelper = new THREE.GridHelper(50, 50);
+		this._gridHelper = new GridHelper(50, 50);
 		this._scene.add(this._gridHelper);
 
-		this._ambientLight = new THREE.AmbientLight(0x101010);
+		this._ambientLight = new AmbientLight(0x303030, 0.3);
 		this._scene.add(this._ambientLight);
 
-		this._hemisphereLight = new THREE.HemisphereLight(0xDDEEFF, 0x0F0E0D, 0.8);
+		this._hemisphereLight = new HemisphereLight(0x87CEFA, 0x303030, 0.8);
 		this._scene.add(this._hemisphereLight);
 
-		this._directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+		this._directionalLight = new DirectionalLight(0xFFFFFF, 0.8);
 		this._directionalLight.position.set(20, 100, 0);
 		this._scene.add(this._directionalLight);
 
-		this._directionalLightHelper = new THREE.DirectionalLightHelper(this._directionalLight, 5);
+		this._directionalLightHelper = new DirectionalLightHelper(this._directionalLight, 5);
 		this._scene.add(this._directionalLightHelper);
 
 		this._objectManager.load('world', (key, object) => {
 			this._scene.add(object);
-			this._shaderMaterial = new THREE.ShaderMaterial(ShaderUtil.wafeAnimation);
+			this._shaderMaterial = new ShaderMaterial(ShaderUtil.wafeAnimation);
 
 			let shaderTarget = object.getObjectByName('GatewayShader');
 
@@ -257,7 +220,7 @@ class View extends Observable {
 		this._directionalLight.position.x = Math.sin(this._sunRotation) * 100.0;
 		this._directionalLight.position.y = Math.cos(this._sunRotation) * 100.0;
 
-		this._hemisphereLight.intensity = THREE.MathUtils.clamp(this._directionalLight.position.y / 100, 0, 1);
+		this._hemisphereLight.intensity = MathUtils.clamp(this._directionalLight.position.y / 100, 0, 1);
 
 		this._scene.background.setRGB(
 			200 * this._hemisphereLight.intensity / 255,
@@ -344,7 +307,7 @@ class View extends Observable {
 		}.bind(this));
 
 
-		folderHemisphereLight.addColor(properties, 'directionalColor').onChange(function(value) {
+		folderDirectionalLight.addColor(properties, 'directionalColor').onChange(function(value) {
 			this._directionalLight.color.set(value);
 		}.bind(this));
 

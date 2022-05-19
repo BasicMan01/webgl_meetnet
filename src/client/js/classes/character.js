@@ -63,22 +63,6 @@ class Character {
 		}
 	}
 
-	addAnimation(key, animation) {
-		this._animations[key] = {
-			'name': key,
-			'action': this._mixer.clipAction(animation)
-		};
-	}
-
-	setModel(model) {
-		this._model = model;
-
-		this._mixer = new AnimationMixer(this._model);
-
-		this._object.add(this._model);
-		this._object.add(this._createNameSprite());
-	}
-
 	getPosition() {
 		return this._object.position;
 	}
@@ -95,6 +79,27 @@ class Character {
 		this._object.quaternion.copy(quaternion);
 	}
 
+	load(objectManager, key) {
+		objectManager.load(key, (key, object) => {
+			object.scale.setScalar(0.01);
+
+			this._setModel(object);
+
+			objectManager.loadAll(
+				[
+					'character.animation.idle',
+					'character.animation.walk'
+				],
+				(key, object) => {
+					this._addAnimation(key, object.animations[0]);
+				},
+				() => {
+					this.setAnimationState('character.animation.idle');
+				}
+			);
+		});
+	}
+
 	update(timeDelta) {
 		if (this._inputManager) {
 			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
@@ -103,15 +108,6 @@ class Character {
 				this.setAnimationState('character.animation.idle');
 			}
 
-
-			let forward = new Vector3(0, 0, 1);
-			forward.applyQuaternion(this._object.quaternion);
-			forward.normalize();
-
-			// for walk: timeDelta * 1.5
-			// for run: timeDelta * 3.0
-			forward.multiplyScalar(timeDelta * 1.5);
-
 			if (this._inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
 				let rotation = new Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
 
@@ -119,24 +115,36 @@ class Character {
 			}
 
 			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
+				let forward = new Vector3(0, 0, 1);
+
+				forward.applyQuaternion(this._object.quaternion);
+				forward.normalize();
+
+				// for walk: timeDelta * 1.5
+				// for run: timeDelta * 3.0
+				forward.multiplyScalar(timeDelta * 1.5);
+
 				this._object.position.add(forward);
 				this._camera.position.add(forward);
-			}
 
-			// orbit controls rotate around new position
-			this._controls.target.copy(new Vector3(this._object.position.x, 1.7, this._object.position.z));
-			this._controls.update();
+				// orbit controls rotate around new position
+				this._controls.target.copy(new Vector3(this._object.position.x, 1.7, this._object.position.z));
+				this._controls.update();
+			}
 		} else {
 			/*
-			let forward = new Vector3(0, 0, 1);
-			forward.applyQuaternion(this._object.quaternion);
-			forward.normalize();
+			if (this.getAnimationStateName() === 'character.animation.walk') {
+				let forward = new Vector3(0, 0, 1);
 
-			// for walk: timeDelta * 1.5
-			// for run: timeDelta * 3.0
-			forward.multiplyScalar(timeDelta * 1.5);
+				forward.applyQuaternion(this._object.quaternion);
+				forward.normalize();
 
-			this._model.position.add(forward);
+				// for walk: timeDelta * 1.5
+				// for run: timeDelta * 3.0
+				forward.multiplyScalar(timeDelta * 1.5);
+
+				this._object.position.add(forward);
+			}
 			*/
 		}
 
@@ -147,6 +155,13 @@ class Character {
 
 	initCameraPosition() {
 		this._camera.position.copy(this._calculateCameraOffset());
+	}
+
+	_addAnimation(key, animation) {
+		this._animations[key] = {
+			'name': key,
+			'action': this._mixer.clipAction(animation)
+		};
 	}
 
 	_calculateCameraOffset() {
@@ -169,6 +184,15 @@ class Character {
 		sprite.position.y += size.y + 0.2;
 
 		return sprite;
+	}
+
+	_setModel(model) {
+		this._model = model;
+
+		this._mixer = new AnimationMixer(this._model);
+
+		this._object.add(this._model);
+		this._object.add(this._createNameSprite());
 	}
 
 	// TODO - State Machine
