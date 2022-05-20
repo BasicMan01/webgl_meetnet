@@ -200,6 +200,8 @@ class Character {
 		if (previewAction) {
 			currentAction.time = 0.0;
 			currentAction.enabled = true;
+			currentAction.setEffectiveTimeScale(1.0);
+			currentAction.setEffectiveWeight(1.0);
 			currentAction.crossFadeFrom(previewAction.action, 0.3, true);
 			currentAction.play();
 		} else {
