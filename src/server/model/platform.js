@@ -1,4 +1,3 @@
-let Constants = require('./constants');
 let User = require('./user');
 
 class Platform {

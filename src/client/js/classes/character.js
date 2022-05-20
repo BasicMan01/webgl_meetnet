@@ -132,7 +132,6 @@ class Character {
 				this._controls.update();
 			}
 		} else {
-			/*
 			if (this.getAnimationStateName() === 'character.animation.walk') {
 				let forward = new Vector3(0, 0, 1);
 
@@ -145,7 +144,6 @@ class Character {
 
 				this._object.position.add(forward);
 			}
-			*/
 		}
 
 		if (this._mixer) {
