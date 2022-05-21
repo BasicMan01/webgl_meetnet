@@ -123,8 +123,12 @@ class View extends Observable {
 		this._shaderMaterial = null;
 		this._sunRotation = 0.0;
 
-		this._load();
-		this._createGui();
+		Ammo().then(lib => {
+			Ammo = lib;
+
+			this._load();
+			this._createGui();
+		});
 	}
 
 	destroy() {
