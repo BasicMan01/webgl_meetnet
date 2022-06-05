@@ -136,6 +136,10 @@ class View extends Observable {
 	}
 
 	destroy() {
+		if (this._character) {
+			this._character.destroy();
+		}
+
 		this._musicManager.stop();
 	}
 

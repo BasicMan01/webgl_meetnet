@@ -29,6 +29,24 @@ class Character {
 		this._scene.add(this._object);
 	}
 
+	destroy() {
+		if (this._model) {
+			this._model.traverse(child => {
+				if (child.material) {
+					child.material.dispose();
+				}
+
+				if (child.geometry) {
+					child.geometry.dispose();
+				}
+			});
+
+			this._model = null;
+		}
+
+		this._scene.remove(this._object);
+	}
+
 	isLocalUser() {
 		return this._localUser;
 	}
