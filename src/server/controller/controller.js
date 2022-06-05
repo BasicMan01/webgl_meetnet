@@ -34,7 +34,6 @@ class Controller {
 				this._platform.removeUser(socket.id);
 			}.bind(this));
 
-
 			socket.on('SN_CLIENT_CHAT_MESSAGE', function(chatMessage) {
 				this._socketMessage.sendChatMessage(
 					this._platform.getUserName(socket.id),

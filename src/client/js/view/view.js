@@ -20,6 +20,7 @@ import {
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 import Observable from '../interface/observable.js';
 
@@ -77,8 +78,11 @@ class View extends Observable {
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
 		this._renderer.outputEncoding = sRGBEncoding;
 
+		this._stats = new Stats();
+
 		// add renderer to the DOM-Tree
 		this._canvas.appendChild(this._renderer.domElement);
+		this._canvas.appendChild(this._stats.dom);
 
 		this._controls = new OrbitControls(this._camera, this._renderer.domElement);
 		this._controls.enablePan = false;
@@ -242,6 +246,8 @@ class View extends Observable {
 			this._users[userId].update(timeDelta);
 		}
 
+		this._stats.update();
+
 		this._renderer.render(this._scene, this._camera);
 	};
 
@@ -330,6 +336,8 @@ class View extends Observable {
 		folderDirectionalLight.add(properties, 'diretionalPosZ', -50, 50).step(0.5).onChange(function(value) {
 			this._directionalLight.position.z = value;
 		}.bind(this));
+
+		gui.close();
 	}
 
 
@@ -352,6 +360,49 @@ class View extends Observable {
 
 		if (event.keyCode === 50) {
 			this._soundManager.play('owl');
+		}
+
+		if (event.keyCode === 51) {
+			this.emit('addChatMessageAction', {
+				'userName': 'SYSTEM',
+				'message': `
+					<br>
+					===== Memory =====<br>
+					<table>
+						<tr>
+							<td>Programs:</td>
+							<td>${this._renderer.info.memory.programs}</td>
+						</tr>
+						<tr>
+							<td>Geometries:</td>
+							<td>${this._renderer.info.memory.geometries}</td>
+						</tr>
+						<tr>
+							<td>Textures:</td>
+							<td>${this._renderer.info.memory.textures}</td>
+						</tr>
+					</table>
+					===== Render =====<br>
+					<table>
+						<tr>
+							<td>Calls:</td>
+							<td>${this._renderer.info.render.calls}</td>
+						</tr>
+						<tr>
+							<td>Vertices:</td>
+							<td>${this._renderer.info.render.vertices}</td>
+						</tr>
+						<tr>
+							<td>Faces:</td>
+							<td>${this._renderer.info.render.faces}</td>
+						</tr>
+						<tr>
+							<td>Points:</td>
+							<td>${this._renderer.info.render.points}</td>
+						</tr>
+					</table>
+				`
+			});
 		}
 	};
 

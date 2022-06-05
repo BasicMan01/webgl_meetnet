@@ -26,6 +26,7 @@ class Controller {
 		this._login.addCallback('loginAction', this._loginAction.bind(this));
 
 		this._view = new View();
+		this._view.addCallback('addChatMessageAction', this._addChatMessageAction.bind(this));
 		this._view.addCallback('sendTransformDataAction', this._sendTransformDataAction.bind(this));
 
 		this._chat = new Chat();
@@ -72,7 +73,10 @@ class Controller {
 
 
 		this._socket.on('SN_SERVER_CHAT_MESSAGE', function(userName, msg) {
-			this._chat.addChatMessage(userName, msg);
+			this._addChatMessageAction({
+				userName: userName,
+				message: msg
+			});
 		}.bind(this));
 
 		this._socket.on('SN_SERVER_LOGIN', function(msg) {
@@ -95,6 +99,10 @@ class Controller {
 
 	_loginAction(args) {
 		this._socket.emit('SN_CLIENT_LOGIN', args.name);
+	}
+
+	_addChatMessageAction(args) {
+		this._chat.addChatMessage(args.userName, args.message);
 	}
 
 	_sendChatMessageAction(args) {
