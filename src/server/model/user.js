@@ -4,6 +4,7 @@ let Vector3 = require('../classes/vector3');
 class User {
 	constructor(id) {
 		this._id = id;
+		this._gender = 'm'
 		this._name = '';
 		this._online = false;
 
@@ -45,6 +46,10 @@ class User {
 		this._rotation.fromArray(rotation);
 	}
 
+	setGender(gender) {
+		this._gender = gender === 'm' ? 'm' : 'w';
+	}
+
 	getName() {
 		return this._name;
 	}
@@ -64,6 +69,7 @@ class User {
 	getNetworkPackage() {
 		return {
 			'id': this._id,
+			'gender': this._gender,
 			'name': this._name,
 			'position': this.getPosition(),
 			'rotation': this.getRotation(),

@@ -30,29 +30,41 @@
 
 		<div id="connect" class="popover hidden">
 			<div class="container form-container">
-				<div class="input">
+				<div class="form-field">
 					<input type="text" id="ip" placeholder="xxx.xxx.xxx.xxx" value="" autocomplete="off">
 				</div>
 
-				<div class="input">
+				<div class="form-field">
 					<input type="button" id="btnConnect" value="Connect">
 				</div>
 
 				<div class="input status-message">
 					<label id="connectMessage"></label>
 				</div>
-
-				<div ></div>
 			</div>
 		</div>
 
 		<div id="login" class="popover hidden">
 			<div class="container form-container">
-				<div class="input">
+				<div class="form-field">
 					<input type="text" id="name" maxlength="10" placeholder="Enter your Name" value="" autocomplete="off">
 				</div>
 
-				<div class="input">
+				<div class="form-field">
+					<label class="radio">
+						<input type="radio" id="gender_m" name="gender" value="m">
+						<span class="radio-mark"></span>
+						&#9794;
+					</label>
+
+					<label class="radio">
+						<input type="radio" id="gender_w" name="gender" value="w">
+						<span class="radio-mark"></span>
+						&#9792;
+					</label>
+				</div>
+
+				<div class="form-field">
 					<input type="button" id="btnLogin" value="Login">
 				</div>
 			</div>

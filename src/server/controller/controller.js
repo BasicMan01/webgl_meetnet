@@ -41,8 +41,8 @@ class Controller {
 				);
 			}.bind(this));
 
-			socket.on('SN_CLIENT_LOGIN', function(userName) {
-				this._platform.setUserName(socket.id, userName);
+			socket.on('SN_CLIENT_LOGIN', function(userName, userGender) {
+				this._platform.setUserData(socket.id, userName, userGender);
 
 				let data = this._platform.getCreationPackage(socket.id);
 

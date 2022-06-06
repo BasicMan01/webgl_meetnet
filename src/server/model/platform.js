@@ -75,9 +75,10 @@ class Platform {
 		return '';
 	}
 
-	setUserName(socketId, name) {
+	setUserData(socketId, name, gender) {
 		if (this._socketIndex.hasOwnProperty(socketId)) {
 			this._socketIndex[socketId].setName(name.substring(0, 10));
+			this._socketIndex[socketId].setGender(gender);
 		}
 	}
 

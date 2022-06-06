@@ -98,7 +98,7 @@ class Controller {
 	}
 
 	_loginAction(args) {
-		this._socket.emit('SN_CLIENT_LOGIN', args.name);
+		this._socket.emit('SN_CLIENT_LOGIN', args.name, args.gender);
 	}
 
 	_addChatMessageAction(args) {

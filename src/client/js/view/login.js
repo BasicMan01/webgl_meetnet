@@ -7,17 +7,18 @@ class Login extends Observable {
 		this._login = document.getElementById('login');
 		this._name = document.getElementById('name');
 
-		this._name.addEventListener('keydown', event => {
+		this._name.addEventListener('keydown', (event) => {
 			event.stopPropagation();
 		});
 
-		this._name.addEventListener('keyup', event => {
+		this._name.addEventListener('keyup', (event) => {
 			event.stopPropagation();
 		});
 
-		document.getElementById('btnLogin').addEventListener('click', event => {
+		document.getElementById('btnLogin').addEventListener('click', (event) => {
 			this.emit('loginAction', {
-				'name' : this._name.value
+				'name' : this._name.value,
+				'gender': document.getElementById('gender_m').checked ? 'm' : 'w'
 			});
 		});
 	}

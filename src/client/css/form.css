@@ -8,8 +8,12 @@
 	padding: 10px 25px 10px 25px;
 }
 
-.form-container .input {
+.form-container .form-field {
 	margin: 15px 0 15px 0;
+}
+
+.form-container .form-element {
+	margin: 10px 0 10px 0;
 }
 
 
@@ -96,7 +100,7 @@
 .form-container .radio {
 	display: inline-block;
 	height: 15px;
-	margin: 10px 0 10px 0;
+	/* margin: 10px 0 10px 0; */
 	position: relative;
 	padding-left: 40px;
 	padding-right: 40px;

@@ -150,7 +150,7 @@ class View extends Observable {
 		this._character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));
 		this._character.setRotation(new Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
 		this._character.initCameraPosition();
-		this._character.load(this._objectManager, 'character.male');
+		this._character.load(this._objectManager, data.gender === 'm' ? 'character.male' : 'character.female');
 
 		this._users[data.id] = this._character;
 	}
@@ -169,7 +169,7 @@ class View extends Observable {
 
 				this._users[data.user[i].id].setPosition(new Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
 				this._users[data.user[i].id].setRotation(new Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
-				this._users[data.user[i].id].load(this._objectManager, 'character.female');
+				this._users[data.user[i].id].load(this._objectManager, data.user[i].gender === 'm' ? 'character.male' : 'character.female');
 			}
 		}
 	}
