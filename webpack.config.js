@@ -20,6 +20,10 @@ module.exports = {
 		new CopyPlugin({
 			patterns: [
 				{
+					from: './src/client/form.html',
+					to: './'
+				},
+				{
 					from: './src/client/index.html',
 					to: './'
 				},

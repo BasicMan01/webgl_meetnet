@@ -14,6 +14,7 @@
 
 		<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 		<link rel="stylesheet" type="text/css" href="css/global.css">
+		<link rel="stylesheet" type="text/css" href="css/form.css">
 		<link rel="stylesheet" type="text/css" href="css/chat.css">
 	</head>
 
@@ -28,26 +29,30 @@
 		</div>
 
 		<div id="connect" class="popover hidden">
-			<div class="container">
-				<div>
+			<div class="container form-container">
+				<div class="input">
 					<input type="text" id="ip" placeholder="xxx.xxx.xxx.xxx" value="" autocomplete="off">
 				</div>
 
-				<div>
+				<div class="input">
 					<input type="button" id="btnConnect" value="Connect">
 				</div>
 
-				<div id="connectMessage"></div>
+				<div class="input status-message">
+					<label id="connectMessage"></label>
+				</div>
+
+				<div ></div>
 			</div>
 		</div>
 
 		<div id="login" class="popover hidden">
-			<div class="container">
-				<div>
+			<div class="container form-container">
+				<div class="input">
 					<input type="text" id="name" maxlength="10" placeholder="Enter your Name" value="" autocomplete="off">
 				</div>
 
-				<div>
+				<div class="input">
 					<input type="button" id="btnLogin" value="Login">
 				</div>
 			</div>

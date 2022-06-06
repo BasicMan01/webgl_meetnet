@@ -1,7 +1,9 @@
 :root {
+	--background-color-button: #006666;
 	--border-color: #00BBBB;
-	--text-color: #FFFFFF;
 	--placeholder-color: #AAAAAA;
+	--text-color: #FFFFFF;
+
 }
 
 * {
@@ -33,37 +35,6 @@ body {
 }
 
 
-/* FORMULAR */
-
-input[type="button"],
-input[type="text"] {
-	border: 2px solid var(--border-color);
-	border-radius: 5px;
-	color: inherit;
-	font-size: 18px;
-	margin: 15px 0 15px 0;
-	padding: 10px;
-	width: 100%;
-}
-
-input[type="button"] {
-	background: #006666;
-	cursor: pointer;
-}
-
-input[type="text"] {
-	background: transparent;
-}
-
-input[type="text"]:focus {
-    outline: none;
-}
-
-input[type="text"]::placeholder {
-	color: var(--placeholder-color);
-}
-
-
 /***** CONNECT / LOGIN FORM *****/
 
 .popover {
@@ -79,27 +50,10 @@ input[type="text"]::placeholder {
 
 .popover .container {
 	background: #00000080;
-	border: 2px solid var(--border-color);
-	border-radius: 5px;
-	padding: 30px;
 	width: 400px;
 }
 
-.popover .container #connectMessage {
+.popover .container .status-message {
 	color: red;
-	font-size: 18px;
 	font-weight: bold;
-}
-
-
-/* THIRD PARTY */
-
-.lil-gui input[type="text"] {
-	background: var(--widget-color);
-    border: 0;
-    color: var(--text-color);
-    font-family: var(--font-family);
-    font-size: var(--input-font-size);
-	margin: 0;
-    width: 100%;
 }

@@ -1,0 +1,134 @@
+/* Form */
+
+.form-container {
+	border: 2px solid var(--border-color);
+	border-radius: 5px;
+	font-size: 18px;
+	margin: 15px;
+	padding: 10px 25px 10px 25px;
+}
+
+.form-container .input {
+	margin: 15px 0 15px 0;
+}
+
+
+/* Input */
+
+.form-container input[type="button"],
+.form-container input[type="password"],
+.form-container input[type="range"],
+.form-container input[type="text"],
+.form-container select,
+.form-container textarea {
+	background: transparent;
+	border: 2px solid var(--border-color);
+	border-radius: 5px;
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
+	padding: 10px;
+	width: 100%;
+}
+
+.form-container input[type="button"] {
+	background: var(--background-color-button);
+	cursor: pointer;
+}
+
+.form-container input[type="range"] {
+	-webkit-appearance: none;
+	height: 4px;
+	margin: 25px 0 25px 0;
+	padding: 0;
+}
+
+/*
+	Use a separete block for ::-moz-range-thumb and ::-webkit-slider-thumb.
+	For Edge browser ::-ms-thump does not working.
+*/
+
+.form-container input[type="range"]::-moz-range-thumb {
+	background: var(--background-color-button);
+	border: 2px solid var(--border-color);
+	border-radius: 5px;
+	cursor: pointer;
+	height: 25px;
+	width: 12px;
+}
+
+.form-container input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	background: var(--background-color-button);
+	border: 2px solid var(--border-color);
+	border-radius: 5px;
+	cursor: pointer;
+	height: 25px;
+	width: 12px;
+}
+
+.form-container select option {
+    background: black;
+}
+
+
+/* Input Placeholder + Focus */
+
+.form-container input[type="password"]::placeholder,
+.form-container input[type="text"]::placeholder {
+	color: var(--placeholder-color);
+}
+
+.form-container input[type="button"]:focus,
+.form-container input[type="password"]:focus,
+.form-container input[type="range"]:focus,
+.form-container input[type="text"]:focus,
+.form-container select:focus,
+.form-container textarea:focus {
+    outline: none;
+	border: 2px solid #AAFFFF;
+}
+
+
+/* Checkbox + Radio */
+
+.form-container .checkbox,
+.form-container .radio {
+	display: inline-block;
+	height: 15px;
+	margin: 10px 0 10px 0;
+	position: relative;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+
+.form-container .checkbox input[type="checkbox"],
+.form-container .radio input[type="radio"] {
+	display: none;
+}
+
+.form-container .checkbox .checkbox-mark,
+.form-container .radio .radio-mark {
+	background: transparent;
+	border: 2px solid var(--border-color);
+	display: inline-block;
+	height: 28px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 28px;
+}
+
+.form-container .checkbox .checkbox-mark {
+	border-radius: 5px;
+}
+
+.form-container .radio .radio-mark {
+	border-radius: 14px;
+}
+
+.form-container .checkbox input[type="checkbox"]:checked ~ .checkbox-mark,
+.form-container .radio input[type="radio"]:checked ~ .radio-mark {
+	background: var(--border-color);
+	box-shadow: inset 0px 0px 0px 5px black;
+}
