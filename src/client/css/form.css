@@ -136,3 +136,21 @@
 	background: var(--border-color);
 	box-shadow: inset 0px 0px 0px 5px black;
 }
+
+
+/* Error Handling */
+
+.form-container .input-error input[type="password"],
+.form-container .input-error input[type="range"],
+.form-container .input-error input[type="text"],
+.form-container .input-error select,
+.form-container .input-error textarea,
+.form-container .input-error .checkbox .checkbox-mark,
+.form-container .input-error .radio .radio-mark {
+	border: 2px solid red;
+}
+
+.form-container .input-error .checkbox input[type="checkbox"]:checked ~ .checkbox-mark,
+.form-container .input-error .radio input[type="radio"]:checked ~ .radio-mark {
+	background: red;
+}
