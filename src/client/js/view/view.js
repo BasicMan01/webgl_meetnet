@@ -144,7 +144,7 @@ class View extends Observable {
 	}
 
 	init(data) {
-		this._musicManager.play('bg_001');
+		//this._musicManager.play('bg_001');
 
 		this._character = new Character(data.id, data.name, this._inputManager, this._camera, this._controls, this._scene);
 		this._character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));
@@ -156,21 +156,46 @@ class View extends Observable {
 	}
 
 	update(data) {
-		for (let i = 0; i < data.user.length; ++i) {
-			if (this._users.hasOwnProperty(data.user[i].id)) {
+		const activeUser = {};
+		const inactiveUsers = [];
+
+		// add local user if active
+		if (this._character) {
+			activeUser[this._character.getId()] = this._users[this._character.getId()];
+		}
+
+		for (let user of data.user) {
+			if (this._users.hasOwnProperty(user.id)) {
 				// ignore current user
-				if (!this._users[data.user[i].id].isLocalUser()) {
-					this._users[data.user[i].id].setPosition(new Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
-					this._users[data.user[i].id].setRotation(new Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
-					this._users[data.user[i].id].setAnimationState(data.user[i].state);
+				if (!this._users[user.id].isLocalUser()) {
+					this._users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
+					this._users[user.id].setRotation(new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w));
+					this._users[user.id].setAnimationState(user.state);
 				}
 			} else {
-				this._users[data.user[i].id] = new Character(data.user[i].id, data.user[i].name, null, null, null, this._scene);
+				this._users[user.id] = new Character(user.id, user.name, null, null, null, this._scene);
 
-				this._users[data.user[i].id].setPosition(new Vector3(data.user[i].position.x, data.user[i].position.y, data.user[i].position.z));
-				this._users[data.user[i].id].setRotation(new Quaternion(data.user[i].rotation.x, data.user[i].rotation.y, data.user[i].rotation.z, data.user[i].rotation.w));
-				this._users[data.user[i].id].load(this._objectManager, data.user[i].gender === 'm' ? 'character.male' : 'character.female');
+				this._users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
+				this._users[user.id].setRotation(new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w));
+				this._users[user.id].load(this._objectManager, user.gender === 'm' ? 'character.male' : 'character.female');
 			}
+
+			activeUser[user.id] = this._users[user.id];
+		}
+
+		// find inactive users
+		for (let userId in this._users) {
+			if (!activeUser.hasOwnProperty(userId)) {
+				inactiveUsers.push(this._users[userId]);
+			}
+		}
+
+		// apply only active users
+		this._users = activeUser;
+
+		// remove inactive users
+		for (let inactiveUser of inactiveUsers) {
+			inactiveUser.destroy();
 		}
 	}
 
@@ -358,15 +383,15 @@ class View extends Observable {
 	_onKeyUpHandler(event) {
 		this._inputManager.setKeyState(event.keyCode, false);
 
-		if (event.keyCode === 49) {
+		if (event.keyCode === InputManager.KEY_1) {
 			this._soundManager.play('crows');
 		}
 
-		if (event.keyCode === 50) {
+		if (event.keyCode === InputManager.KEY_2) {
 			this._soundManager.play('owl');
 		}
 
-		if (event.keyCode === 51) {
+		if (event.keyCode === InputManager.KEY_3) {
 			this.emit('addChatMessageAction', {
 				'userName': 'SYSTEM',
 				'message': `

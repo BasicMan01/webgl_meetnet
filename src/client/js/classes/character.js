@@ -81,6 +81,10 @@ class Character {
 		}
 	}
 
+	getId() {
+		return this._id;
+	}
+
 	getPosition() {
 		return this._object.position;
 	}
