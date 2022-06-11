@@ -16,10 +16,12 @@ class Login extends Observable {
 		});
 
 		document.getElementById('btnLogin').addEventListener('click', (event) => {
-			this.emit('loginAction', {
-				'name' : this._name.value,
-				'gender': document.getElementById('gender_m').checked ? 'm' : 'w'
-			});
+			if (this._validate()) {
+				this.emit('loginAction', {
+					'name' : this._name.value,
+					'gender': document.querySelector('input[name="gender"]:checked').value
+				});
+			}
 		});
 	}
 
@@ -29,6 +31,28 @@ class Login extends Observable {
 
 	hide() {
 		this._login.classList.add('hidden');
+	}
+
+	_validate() {
+		const checkedGender = document.querySelector('input[name="gender"]:checked');
+
+		let valid = true;
+
+		if (this._name.value.length) {
+			this._name.closest('.form-field').classList.remove('input-error');
+		} else {
+			this._name.closest('.form-field').classList.add('input-error');
+			valid = false;
+		}
+
+		if (checkedGender) {
+			document.querySelector('input[name="gender"]').closest('.form-field').classList.remove('input-error');
+		} else {
+			document.querySelector('input[name="gender"]').closest('.form-field').classList.add('input-error');
+			valid = false;
+		}
+
+		return valid;
 	}
 }
 

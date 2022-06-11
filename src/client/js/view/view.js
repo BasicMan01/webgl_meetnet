@@ -144,7 +144,7 @@ class View extends Observable {
 	}
 
 	init(data) {
-		//this._musicManager.play('bg_001');
+		this._musicManager.play('bg_001');
 
 		this._character = new Character(data.id, data.name, this._inputManager, this._camera, this._controls, this._scene);
 		this._character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));

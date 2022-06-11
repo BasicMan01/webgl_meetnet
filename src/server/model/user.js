@@ -55,7 +55,7 @@ class User {
 	}
 
 	setName(name) {
-		this._name = name;
+		this._name = name.substring(0, 10);
 	}
 
 	getState() {
