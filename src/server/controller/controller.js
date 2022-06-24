@@ -31,7 +31,11 @@ class Controller {
 			}
 
 			socket.on('disconnect', function() {
-				this._platform.removeUser(socket.id);
+				const userName = this._platform.getUserName(socket.id);
+
+				if (this._platform.removeUser(socket.id)) {
+					this._socketMessage.sendChatMessage('SYSTEM', userName + ' left the world');
+				}
 			}.bind(this));
 
 			socket.on('SN_CLIENT_CHAT_MESSAGE', function(chatMessage) {
@@ -49,7 +53,7 @@ class Controller {
 				this._socketMessage.sendUserData(socket.id, data);
 				this._socketMessage.sendChatMessage(
 					'SYSTEM',
-					this._platform.getUserName(socket.id) + '  joined the world'
+					this._platform.getUserName(socket.id) + ' joined the world'
 				);
 			}.bind(this));
 
