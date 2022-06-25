@@ -1,0 +1,25 @@
+#user {
+	background: #00000080;
+	border: 2px solid var(--border-color);
+	border-radius: 5px;
+	font-size: 18px;
+	padding: 10px;
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	width: 250px;
+}
+
+#user table {
+	width: 100%;
+}
+
+#user table td {
+	padding: 3px;
+}
+
+#user table td:nth-child(1),
+#user table td:nth-child(3) {
+	text-align: end;
+	width: 30px;
+}
