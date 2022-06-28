@@ -26,9 +26,8 @@ npm install
 npm run prod
 ```
 
-* .env configuration
-	* Rename .env.template to .env and change configuration values
-
+* Port Information
+	* Port 3000 is used for websocket connection
 
 ### Start Server ###
 ```
