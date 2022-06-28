@@ -23,6 +23,11 @@
 	width: 100%;
 }
 
+#chat input:focus {
+    outline: none;
+	border-top: 2px solid var(--border-color-hover);
+}
+
 #chat #chatHistory {
 	height: 100%;
 	padding-bottom: 26px;

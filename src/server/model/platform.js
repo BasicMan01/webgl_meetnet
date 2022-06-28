@@ -8,25 +8,41 @@ class Platform {
 		this._lastId = 0;
 		this._socketIndex = {};
 
-		this._timeoutInterval = null;
+		this._timerWorldData = 0;
+
+		// this._startTime = new Date().getTime();
+		// this._lastTime = this._startTime;
 	}
 
+	update(timeDelta) {
+		this._timerWorldData += timeDelta;
 
-	animation() {
-		this._socketMessage.sendWorldData(this._getSocketData());
-	}
+		if (this._timerWorldData >= this._config.getInterval()) {
+			this._timerWorldData = 0;
 
-	startAnimation() {
-		this._timeoutInterval = setInterval(this.animation.bind(this), this._config.getInterval());
-	}
-
-	/*
-	stopAnimation() {
-		if (this._timeoutInterval !== null) {
-			clearInterval(this._timeoutInterval);
+			this._socketMessage.sendWorldData(this._getSocketData());
 		}
+
+		/*
+		this._currentTime = new Date().getTime();
+
+		if (this._currentTime - this._lastTime >= 1000) {
+			this._lastTime += 1000;
+
+			//this._socketMessage.sendClockData();
+			console.log((this._startTime + 120000 - this._lastTime) / 1000);
+		}
+		*/
 	}
-	*/
+
+	startAnimation(timeLast = 0) {
+		setTimeout(() => {
+			const timeNow = performance.now();
+
+			this.update((timeNow - timeLast) * 0.001);
+			this.startAnimation(timeNow);
+		});
+	}
 
 	addUser(socketId) {
 		if (this._socketIndex.hasOwnProperty(socketId)) {

@@ -1,6 +1,6 @@
 class Config {
 	constructor() {
-		this._interval = 100;
+		this._interval = 0.1;
 	}
 
 	getInterval() {

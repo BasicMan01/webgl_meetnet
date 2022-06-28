@@ -90,7 +90,7 @@
 .form-container select:focus,
 .form-container textarea:focus {
     outline: none;
-	border: 2px solid #AAFFFF;
+	border: 2px solid var(--border-color-hover);
 }
 
 
