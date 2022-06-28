@@ -26,6 +26,9 @@ npm install
 npm run prod
 ```
 
+* .env configuration
+	* SERVER_PORT=
+
 ### Start Server ###
 ```
 node src/server/server
