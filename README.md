@@ -1,4 +1,4 @@
-# webgl_meetnet
+# webgl_metaverse
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
@@ -27,7 +27,8 @@ npm run prod
 ```
 
 * .env configuration
-	* SERVER_PORT=
+	* Rename .env.template to .env and change configuration values
+
 
 ### Start Server ###
 ```
