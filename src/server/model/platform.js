@@ -1,5 +1,7 @@
 let User = require('./user');
 
+const { performance } = require('perf_hooks');
+
 class Platform {
 	constructor(config, socketMessage) {
 		this._config = config;
