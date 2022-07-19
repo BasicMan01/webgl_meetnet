@@ -1,4 +1,4 @@
-import Observable from '../interface/observable.js';
+import Observable from '../../interface/observable.js';
 
 class Timer extends Observable {
 	constructor() {

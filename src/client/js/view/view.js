@@ -32,6 +32,11 @@ import ObjectManager from '../classes/objectManager.js';
 
 import ShaderUtil from '../util/shaderUtil.js';
 
+import Chat from './partial/chat.js';
+import Connect from './partial/connect.js';
+import Login from './partial/login.js';
+import Timer from './partial/timer.js';
+
 /*
 //https://github.com/simondevyoutube/ThreeJS_Tutorial_ThirdPersonCamera/blob/main/main.js
 
@@ -52,6 +57,12 @@ Then you want to control the player with the mouse or keyboard. Your best bet is
 class View extends Observable {
 	constructor() {
 		super();
+
+		// partial views (public)
+		this.chatView = new Chat();
+		this.connectView = new Connect();
+		this.loginView = new Login();
+		this.timerView = new Timer();
 
 		this._canvas = document.getElementById('webGlCanvas');
 
@@ -132,7 +143,14 @@ class View extends Observable {
 
 			this._load();
 			this._createGui();
+
+			this.connectView.show();
 		});
+	}
+
+	connect() {
+		this.connectView.hide();
+		this.loginView.show();
 	}
 
 	destroy() {
@@ -141,9 +159,18 @@ class View extends Observable {
 		}
 
 		this._musicManager.stop();
+
+		this.chatView.hide();
+		this.loginView.hide();
+		this.timerView.hide();
+		this.connectView.show();
 	}
 
 	init(data) {
+		this.loginView.hide();
+		this.chatView.show();
+		this.timerView.show();
+
 		this._musicManager.play('bg_001');
 
 		this._character = new Character(data.id, data.name, this._inputManager, this._camera, this._controls, this._scene);
