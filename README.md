@@ -6,30 +6,36 @@
 * Socket.io - [https://socket.io/docs/]
 * Threejs - [https://threejs.org/docs/]
 
-### Resources ###
+### Resources
+
 * 3D Models and Animation - [https://www.mixamo.com/]
 * Music and Sound - [https://freesound.org/]
 	* Background Music
 		* https://creativecommons.org/licenses/by/4.0/
 		* https://freesound.org/people/Migfus20
 
-### Build Project ###
-* Install
-```
-git clone https://github.com/BasicMan01/webgl_metaverse.git webgl_metaverse
-cd webgl_metaverse
-npm install
-```
+### Build Project
 
-* Build Client
-```
-npm run prod
-```
+1. Install
+	```
+	git clone https://github.com/BasicMan01/webgl_metaverse.git webgl_metaverse
 
-* Port Information
-	* Port 3000 is used for websocket connection
+	cd webgl_metaverse
+
+	npm install
+	```
+
+2. Configure environment variables
+	* Copy `.env.template` file and rename it to `.env`
+	* Add or change variable values with your's
+
+3. Build Client
+	```
+	npm run prod
+	```
 
 ### Start Server ###
+
 ```
 node src/server/server
 ```

@@ -40,7 +40,7 @@ class Controller {
 	_connectAction(args) {
 		this._connect.setErrorMessage('Connect...');
 
-		this._socket = io('ws://' + args.ip + ':3000', {
+		this._socket = io('ws://' + args.ip + ':' + process.env.SERVER_PORT, {
 			reconnection: false,
 			transports: ['websocket']
 		});
