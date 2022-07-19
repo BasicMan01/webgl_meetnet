@@ -9,5 +9,6 @@
 	right: 0;
 	text-align: center;
 	top: 10px;
+	user-select: none;
 	width: 120px;
 }

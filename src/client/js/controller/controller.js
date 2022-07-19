@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import Chat from '../view/chat.js';
 import Connect from '../view/connect.js';
 import Login from '../view/login.js';
+import Timer from '../view/timer.js';
 import View from '../view/view.js';
 
 class Controller {
@@ -12,6 +13,7 @@ class Controller {
 		this._chat = null;
 		this._connect = null;
 		this._login = null;
+		this._timer = null;
 		this._view = null;
 
 		this._init();
@@ -31,6 +33,8 @@ class Controller {
 
 		this._chat = new Chat();
 		this._chat.addCallback('sendChatMessageAction', this._sendChatMessageAction.bind(this));
+
+		this._timer = new Timer();
 	}
 
 	_connectAction(args) {
@@ -53,6 +57,7 @@ class Controller {
 
 			this._chat.hide();
 			this._login.hide();
+			this._timer.hide();
 
 			this._connect.setErrorMessage('Disconnected');
 			this._connect.show();
@@ -66,6 +71,7 @@ class Controller {
 
 			this._chat.hide();
 			this._login.hide();
+			this._timer.hide();
 
 			this._connect.setErrorMessage('Connection Error');
 			this._connect.show();
@@ -79,9 +85,17 @@ class Controller {
 			});
 		}.bind(this));
 
+		this._socket.on('SN_SERVER_CLOCK_DATA', function(msg) {
+			// TODO: VALIDATION
+			let data = JSON.parse(msg);
+
+			this._timer.setValue(data.time);
+		}.bind(this));
+
 		this._socket.on('SN_SERVER_LOGIN', function(msg) {
 			this._login.hide();
 			this._chat.show();
+			this._timer.show();
 
 			// TODO: VALIDATION
 			let data = JSON.parse(msg);

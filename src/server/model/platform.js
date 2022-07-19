@@ -12,8 +12,8 @@ class Platform {
 
 		this._timerWorldData = 0;
 
-		// this._startTime = new Date().getTime();
-		// this._lastTime = this._startTime;
+		this._startTime = new Date().getTime();
+		this._lastTime = this._startTime;
 	}
 
 	update(timeDelta) {
@@ -25,16 +25,26 @@ class Platform {
 			this._socketMessage.sendWorldData(this._getSocketData());
 		}
 
-		/*
-		this._currentTime = new Date().getTime();
 
-		if (this._currentTime - this._lastTime >= 1000) {
-			this._lastTime += 1000;
+		if (this._startTime > 0) {
+			this._currentTime = new Date().getTime();
 
-			//this._socketMessage.sendClockData();
-			console.log((this._startTime + 120000 - this._lastTime) / 1000);
+			if (this._currentTime - this._lastTime >= 1000) {
+				this._lastTime += 1000;
+
+				const calculatedTime = (this._startTime + 120000 - this._lastTime) / 1000;
+
+				// fallback
+				if (calculatedTime < 0) {
+					this._startTime = new Date().getTime();
+					this._lastTime = this._startTime;
+				}
+
+				this._socketMessage.sendClockData({
+					'time': (this._startTime + 120000 - this._lastTime) / 1000
+				});
+			}
 		}
-		*/
 	}
 
 	startAnimation(timeLast = 0) {
