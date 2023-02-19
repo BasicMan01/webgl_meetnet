@@ -49,3 +49,11 @@ module.exports = {
 		})
 	]
 };
+
+/*
+"scripts": {
+    "watch-all": "npm run watch-server & npm run watch-client & nodemon --inspect private/server.js",
+    "watch-server": "tsc -p tsconfig.json -inlineSourceMap -outDir private --watch",
+    "watch-client": "webpack --watch",
+  }
+*/
