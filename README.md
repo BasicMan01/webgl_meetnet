@@ -31,7 +31,7 @@
 
 3. Build Client
 	```
-	npm run prod
+	npm run client-prod
 	```
 
 ### Start Server ###
