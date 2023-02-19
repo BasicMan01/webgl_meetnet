@@ -27,14 +27,14 @@ class Chat extends Observable {
 	}
 
 	addChatMessage(userName, message) {
-		let chatMessages = document.getElementById('chatMessages')
-		let li = document.createElement('li');
+		const chatMessages = document.getElementById('chatMessages');
+		const li = document.createElement('li');
 
 		li.innerHTML = '[' + userName + ']: ' + message;
-		//li.style.color = ''
+		// li.style.color = ''
 
 		if (userName === 'SYSTEM') {
-			li.style.fontStyle = "italic";
+			li.style.fontStyle = 'italic';
 		}
 
 		chatMessages.appendChild(li);

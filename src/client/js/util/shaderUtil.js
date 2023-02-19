@@ -7,7 +7,7 @@ class ShaderUtil {
 		side: DoubleSide,
 		transparent: true,
 		uniforms: {
-			time: { type: "f", value: 0.0 }
+			time: { type: 'f', value: 0.0 }
 		},
 
 		vertexShader: `

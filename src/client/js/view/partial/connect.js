@@ -16,8 +16,8 @@ class Connect extends Observable {
 			event.stopPropagation();
 		});
 
-		document.getElementById('btnConnect').addEventListener('click', event => {
-			let ip = document.getElementById('ip').value;
+		document.getElementById('btnConnect').addEventListener('click', () => {
+			const ip = document.getElementById('ip').value;
 
 			this.emit('connectAction', {
 				'ip': ip

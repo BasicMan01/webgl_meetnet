@@ -3,19 +3,19 @@ const Dotenv = require('dotenv-webpack');
 
 module.exports = {
 	devtool: false,
-    entry: [
-		"./src/client/js/app.js"
+	entry: [
+		'./src/client/js/app.js'
 	],
-    output: {
-        path: require("path").resolve("./client"),
-        filename: "./js/app.js"
+	output: {
+		path: require('path').resolve('./client'),
+		filename: './js/app.js'
 	},
 	performance: {
 		maxAssetSize: 1000000,
 		maxEntrypointSize: 1000000,
 		assetFilter: function (assetFilename) {
 			return assetFilename.endsWith('.js');
-		},
+		}
 	},
 	plugins: [
 		new Dotenv(),
@@ -48,4 +48,4 @@ module.exports = {
 			]
 		})
 	]
-}
+};

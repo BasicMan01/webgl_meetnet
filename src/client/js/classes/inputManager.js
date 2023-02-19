@@ -5,7 +5,7 @@ class InputManager {
 	}
 
 	getKeyState(key) {
-		if (this._keys.hasOwnProperty(key)) {
+		if (Object.prototype.hasOwnProperty.call(this._keys, key)) {
 			return this._keys[key];
 		}
 
@@ -13,7 +13,7 @@ class InputManager {
 	}
 
 	getMouseState(key) {
-		if (this._mouseButtons.hasOwnProperty(key)) {
+		if (Object.prototype.hasOwnProperty.call(this._mouseButtons, key)) {
 			return this._mouseButtons[key];
 		}
 
@@ -76,4 +76,4 @@ class InputManager {
 	static get MOUSE_RIGHT() { return 2; }
 }
 
-export default InputManager
+export default InputManager;

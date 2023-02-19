@@ -1,10 +1,10 @@
-let Quaternion = require('../classes/quaternion');
-let Vector3 = require('../classes/vector3');
+const Quaternion = require('../classes/quaternion');
+const Vector3 = require('../classes/vector3');
 
 class User {
 	constructor(id) {
 		this._id = id;
-		this._gender = 'm'
+		this._gender = 'm';
 		this._name = '';
 		this._online = false;
 
@@ -39,7 +39,7 @@ class User {
 			'y': this._rotation.y,
 			'z': this._rotation.z,
 			'w': this._rotation.w
-		}
+		};
 	}
 
 	setRotation(rotation) {

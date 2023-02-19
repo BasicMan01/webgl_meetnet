@@ -56,7 +56,7 @@ class Character {
 	}
 
 	setAnimationState(state) {
-		let previewAction = this._currentAnimation;
+		const previewAction = this._currentAnimation;
 
 		if (previewAction) {
 			if (previewAction.name === state) {
@@ -64,7 +64,7 @@ class Character {
 			}
 		}
 
-		if (!this._animations.hasOwnProperty(state)) {
+		if (!Object.prototype.hasOwnProperty.call(this._animations, state)) {
 			return;
 		}
 
@@ -131,13 +131,13 @@ class Character {
 			}
 
 			if (this._inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
-				let rotation = new Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
+				const rotation = new Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
 
 				this._object.rotation.y = rotation.y + Math.PI;
 			}
 
 			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
-				let forward = new Vector3(0, 0, 1);
+				const forward = new Vector3(0, 0, 1);
 
 				forward.applyQuaternion(this._object.quaternion);
 				forward.normalize();
@@ -155,7 +155,7 @@ class Character {
 			}
 		} else {
 			if (this.getAnimationStateName() === 'character.animation.walk') {
-				let forward = new Vector3(0, 0, 1);
+				const forward = new Vector3(0, 0, 1);
 
 				forward.applyQuaternion(this._object.quaternion);
 				forward.normalize();
@@ -185,7 +185,7 @@ class Character {
 	}
 
 	_calculateCameraOffset() {
-		let cameraOffset = new Vector3(0, 2.5, -3.0);
+		const cameraOffset = new Vector3(0, 2.5, -3.0);
 
 		cameraOffset.applyQuaternion(this._object.quaternion);
 		cameraOffset.add(this._object.position);
@@ -194,9 +194,9 @@ class Character {
 	}
 
 	_createNameSprite() {
-		let box3 = new Box3();
-		let size = new Vector3();
-		let sprite = SpriteUtil.createSprite(this._name);
+		const box3 = new Box3();
+		const size = new Vector3();
+		const sprite = SpriteUtil.createSprite(this._name);
 
 		box3.setFromObject(this._model).getSize(size);
 
@@ -217,7 +217,7 @@ class Character {
 
 	// TODO - State Machine
 	_setIdle(previewAction) {
-		let currentAction = this._animations['character.animation.idle'].action;
+		const currentAction = this._animations['character.animation.idle'].action;
 
 		if (previewAction) {
 			currentAction.time = 0.0;
@@ -233,7 +233,7 @@ class Character {
 	}
 
 	_setWalk(previewAction) {
-		let currentAction = this._animations['character.animation.walk'].action;
+		const currentAction = this._animations['character.animation.walk'].action;
 
 		if (previewAction) {
 			currentAction.time = 0.0;

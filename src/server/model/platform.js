@@ -1,4 +1,5 @@
-let User = require('./user');
+const Constants = require('./constants');
+const User = require('./user');
 
 const { performance } = require('perf_hooks');
 
@@ -7,16 +8,22 @@ class Platform {
 		this._config = config;
 		this._socketMessage = socketMessage;
 
-		this._lastId = 0;
+		this._lastUserId = 0;
 		this._socketIndex = {};
+		this._userList = [];
+		this._userOnline = 0;
 
 		this._timerWorldData = 0;
 
-		this._startTime = new Date().getTime();
-		this._lastTime = this._startTime;
+		this._startTime = 0;
+		this._lastTime = 0;
+
+		this._gameStatus = Constants.GAME_STOP;
 	}
 
 	update(timeDelta) {
+		// TODO: change game status
+
 		this._timerWorldData += timeDelta;
 
 		if (this._timerWorldData >= this._config.getInterval()) {
@@ -26,7 +33,7 @@ class Platform {
 		}
 
 
-		if (this._startTime > 0) {
+		if (this._gameStatus === Constants.GAME_WAIT) {
 			this._currentTime = new Date().getTime();
 
 			if (this._currentTime - this._lastTime >= 1000) {
@@ -57,18 +64,18 @@ class Platform {
 	}
 
 	addUser(socketId) {
-		if (this._socketIndex.hasOwnProperty(socketId)) {
+		if (Object.prototype.hasOwnProperty.call(this._socketIndex, socketId)) {
 			return false;
 		}
 
-		this._socketIndex[socketId] = new User(++this._lastId);
+		this._socketIndex[socketId] = new User(++this._lastUserId);
 		console.log('Platform::addUser ' + socketId);
 
 		return true;
 	}
 
 	removeUser(socketId) {
-		if (!this._socketIndex.hasOwnProperty(socketId)) {
+		if (!Object.prototype.hasOwnProperty.call(this._socketIndex, socketId)) {
 			return false;
 		}
 
@@ -78,44 +85,77 @@ class Platform {
 		return true;
 	}
 
+	updateUserStatus() {
+		let currentUserOnline = 0;
+
+		// this._userList = [];
+
+		for (const socketId in this._socketIndex) {
+			if (this._socketIndex[socketId].isOnline()) {
+				++currentUserOnline;
+
+				/*
+				this._userList.push({
+					'name': '',
+					'points': 0
+				})
+				*/
+			}
+		}
+
+		if (currentUserOnline === 0) {
+			this._gameStatus = Constants.GAME_STOP;
+		}
+
+		if (currentUserOnline > this._userOnline && this._userOnline === 0) {
+			this._startTime = new Date().getTime();
+			this._lastTime = this._startTime;
+
+			this._gameStatus = Constants.GAME_WAIT;
+		}
+
+		this._userOnline = currentUserOnline;
+	}
+
+
 	getCreationPackage(socketId) {
-		if (!this._socketIndex.hasOwnProperty(socketId)) {
+		if (!Object.prototype.hasOwnProperty.call(this._socketIndex, socketId)) {
 			return [];
 		}
 
 		return this._socketIndex[socketId].getNetworkPackage();
 	}
 
-	setTransformData(socketId, position, rotation, state) {
-		if (this._socketIndex.hasOwnProperty(socketId)) {
-			this._socketIndex[socketId].setPosition(position);
-			this._socketIndex[socketId].setRotation(rotation);
-			this._socketIndex[socketId].setState(state);
-			this._socketIndex[socketId].setOnline(true);
-		}
-	}
-
 	getUserName(socketId) {
-		if (this._socketIndex.hasOwnProperty(socketId)) {
+		if (Object.prototype.hasOwnProperty.call(this._socketIndex, socketId)) {
 			return this._socketIndex[socketId].getName();
 		}
 
 		return '';
 	}
 
+	setTransformData(socketId, position, rotation, state) {
+		if (Object.prototype.hasOwnProperty.call(this._socketIndex, socketId)) {
+			this._socketIndex[socketId].setPosition(position);
+			this._socketIndex[socketId].setRotation(rotation);
+			this._socketIndex[socketId].setState(state);
+		}
+	}
+
 	setUserData(socketId, name, gender) {
-		if (this._socketIndex.hasOwnProperty(socketId)) {
+		if (Object.prototype.hasOwnProperty.call(this._socketIndex, socketId)) {
 			this._socketIndex[socketId].setName(name);
 			this._socketIndex[socketId].setGender(gender);
+			this._socketIndex[socketId].setOnline(true);
 		}
 	}
 
 	_getSocketData() {
-		let data = {
+		const data = {
 			user: []
 		};
 
-		for (let socketId in this._socketIndex) {
+		for (const socketId in this._socketIndex) {
 			if (this._socketIndex[socketId].isOnline()) {
 				data.user.push(this._socketIndex[socketId].getNetworkPackage());
 			}

@@ -27,14 +27,14 @@ class MusicManager {
 			return;
 		}
 
-		if (!this._music.hasOwnProperty(key)) {
+		if (!Object.prototype.hasOwnProperty.call(this._music, key)) {
 			return;
 		}
 
 		this._currentTrack = new Audio(this._music[key]);
 		this._currentTrack.loop = true;
 		this._currentTrack.volume = 0.25;
-		this._currentTrack.addEventListener("canplaythrough", event => {
+		this._currentTrack.addEventListener('canplaythrough', () => {
 			this._currentTrack.play();
 		});
 	}

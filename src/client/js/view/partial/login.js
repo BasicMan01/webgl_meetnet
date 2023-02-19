@@ -15,10 +15,10 @@ class Login extends Observable {
 			event.stopPropagation();
 		});
 
-		document.getElementById('btnLogin').addEventListener('click', (event) => {
+		document.getElementById('btnLogin').addEventListener('click', () => {
 			if (this._validate()) {
 				this.emit('loginAction', {
-					'name' : this._name.value,
+					'name': this._name.value,
 					'gender': document.querySelector('input[name="gender"]:checked').value
 				});
 			}

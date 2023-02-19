@@ -14,11 +14,11 @@ class ObjectManager {
 	}
 
 	load(key, callback) {
-		if (!this._objects.hasOwnProperty(key)) {
+		if (!Object.prototype.hasOwnProperty.call(this._objects, key)) {
 			return;
 		}
 
-		let path = this._objects[key];
+		const path = this._objects[key];
 
 		if (path.endsWith('.fbx')) {
 			return this._loadFBX(key, path, callback);
@@ -28,13 +28,13 @@ class ObjectManager {
 	}
 
 	loadAll(keys, itemCallback, endCallback) {
-		let promises = [];
+		const promises = [];
 
 		keys.forEach((key) => {
 			promises.push(this.load(key, itemCallback));
 		});
 
-		Promise.all(promises).then(values => {
+		Promise.all(promises).then(() => {
 			if (typeof endCallback === 'function') {
 				endCallback();
 			}
@@ -48,7 +48,7 @@ class ObjectManager {
 			this._fbxLoader.load(
 				path,
 
-				object => {
+				(object) => {
 					if (typeof callback === 'function') {
 						callback(key, object);
 					}
@@ -57,11 +57,11 @@ class ObjectManager {
 					resolve(object);
 				},
 
-				xhr => {
+				(xhr) => {
 					console.info((xhr.loaded / xhr.total * 10) + '% loaded');
 				},
 
-				err => {
+				() => {
 					reject(path + ' failed to load');
 				}
 			);
@@ -73,7 +73,7 @@ class ObjectManager {
 			this._gltfLoader.load(
 				path,
 
-				object => {
+				(object) => {
 					if (typeof callback === 'function') {
 						callback(key, object.scene);
 					}
@@ -82,11 +82,11 @@ class ObjectManager {
 					resolve(object);
 				},
 
-				xhr => {
+				(xhr) => {
 					console.info((xhr.loaded / xhr.total * 10) + '% loaded');
 				},
 
-				err => {
+				() => {
 					reject(path + ' failed to load');
 				}
 			);

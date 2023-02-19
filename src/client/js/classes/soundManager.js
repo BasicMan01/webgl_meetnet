@@ -33,17 +33,17 @@ class SoundManager {
 	}
 
 	play(key) {
-		if (!this._sound.hasOwnProperty(key)) {
+		if (!Object.prototype.hasOwnProperty.call(this._sound, key)) {
 			return;
 		}
 
 		if (this._sound[key].readyState === this._sound[key].HAVE_ENOUGH_DATA) {
-			this._sound[key].play()
+			this._sound[key].play();
 		}
 	}
 
 	stop(key) {
-		if (!this._sound.hasOwnProperty(key)) {
+		if (!Object.prototype.hasOwnProperty.call(this._sound, key)) {
 			return;
 		}
 

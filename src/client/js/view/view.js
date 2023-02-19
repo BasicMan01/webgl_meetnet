@@ -7,7 +7,7 @@ import {
 	Fog,
 	GridHelper,
 	HemisphereLight,
-	MathUtils,
+	// MathUtils,
 	MOUSE,
 	PerspectiveCamera,
 	Quaternion,
@@ -40,9 +40,12 @@ import Timer from './partial/timer.js';
 /*
 //https://github.com/simondevyoutube/ThreeJS_Tutorial_ThirdPersonCamera/blob/main/main.js
 
-First of all, the Controls were designed to be controlling a camera, and not an object. And since by default, objects look "up" the z-axis, and cameras look "down" the z-axis, it is unlikely that the Controls will work as expected when applied to something other than a camera.
+First of all, the Controls were designed to be controlling a camera, and not an object. And since by default,
+objects look "up" the z-axis, and cameras look "down" the z-axis, it is unlikely that the Controls will work
+as expected when applied to something other than a camera.
 
-Secondly, the Controls are part of the examples, and not the library, so they are not officially supported. You are free to hack away at them.
+Secondly, the Controls are part of the examples, and not the library, so they are not officially supported.
+You are free to hack away at them.
 
 One way to achieve what you want is to make the camera a child of your player. Something like this:
 
@@ -51,7 +54,8 @@ camera.position.set( 0, 50, 100 );
 You may, in your render loop, need to set:
 
 camera.lookAt( player.position );
-Then you want to control the player with the mouse or keyboard. Your best bet is to write your own controller to do that. There are plenty of examples on the net.
+Then you want to control the player with the mouse or keyboard.
+Your best bet is to write your own controller to do that. There are plenty of examples on the net.
 */
 
 class View extends Observable {
@@ -84,7 +88,7 @@ class View extends Observable {
 		this._camera = new PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
 		this._camera.position.set(0, 2.5, -3.0);
 
-		this._renderer = new WebGLRenderer({antialias: true});
+		this._renderer = new WebGLRenderer({ antialias: true });
 		this._renderer.setPixelRatio(window.devicePixelRatio);
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
 		this._renderer.outputEncoding = sRGBEncoding;
@@ -173,7 +177,9 @@ class View extends Observable {
 
 		this._musicManager.play('bg_001');
 
-		this._character = new Character(data.id, data.name, this._inputManager, this._camera, this._controls, this._scene);
+		this._character = new Character(
+			data.id, data.name, this._inputManager, this._camera, this._controls, this._scene
+		);
 		this._character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));
 		this._character.setRotation(new Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
 		this._character.initCameraPosition();
@@ -191,28 +197,35 @@ class View extends Observable {
 			activeUser[this._character.getId()] = this._users[this._character.getId()];
 		}
 
-		for (let user of data.user) {
-			if (this._users.hasOwnProperty(user.id)) {
+		for (const user of data.user) {
+			if (Object.prototype.hasOwnProperty.call(this._users, user.id)) {
 				// ignore current user
 				if (!this._users[user.id].isLocalUser()) {
 					this._users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
-					this._users[user.id].setRotation(new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w));
+					this._users[user.id].setRotation(
+						new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w)
+					);
 					this._users[user.id].setAnimationState(user.state);
 				}
 			} else {
 				this._users[user.id] = new Character(user.id, user.name, null, null, null, this._scene);
 
 				this._users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
-				this._users[user.id].setRotation(new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w));
-				this._users[user.id].load(this._objectManager, user.gender === 'm' ? 'character.male' : 'character.female');
+				this._users[user.id].setRotation(
+					new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w)
+				);
+				this._users[user.id].load(
+					this._objectManager,
+					user.gender === 'm' ? 'character.male' : 'character.female'
+				);
 			}
 
 			activeUser[user.id] = this._users[user.id];
 		}
 
 		// find inactive users
-		for (let userId in this._users) {
-			if (!activeUser.hasOwnProperty(userId)) {
+		for (const userId in this._users) {
+			if (!Object.prototype.hasOwnProperty.call(activeUser, userId)) {
 				inactiveUsers.push(this._users[userId]);
 			}
 		}
@@ -221,7 +234,7 @@ class View extends Observable {
 		this._users = activeUser;
 
 		// remove inactive users
-		for (let inactiveUser of inactiveUsers) {
+		for (const inactiveUser of inactiveUsers) {
 			inactiveUser.destroy();
 		}
 	}
@@ -247,7 +260,7 @@ class View extends Observable {
 			this._scene.add(object);
 			this._shaderMaterial = new ShaderMaterial(ShaderUtil.wafeAnimation);
 
-			let shaderTarget = object.getObjectByName('GatewayShader');
+			const shaderTarget = object.getObjectByName('GatewayShader');
 
 			shaderTarget.material = this._shaderMaterial;
 		});
@@ -258,7 +271,7 @@ class View extends Observable {
 	_render() {
 		requestAnimationFrame(this._render.bind(this));
 
-		let timeDelta = this._clock.getDelta();
+		const timeDelta = this._clock.getDelta();
 
 		if (this._shaderMaterial) {
 			this._shaderMaterial.uniforms.time.value += timeDelta;
@@ -273,7 +286,7 @@ class View extends Observable {
 				this.emit('sendTransformDataAction', {
 					'position': this._character.getPosition().toArray(),
 					'rotation': this._character.getRotation().toArray(),
-					'state':  this._character.getAnimationStateName()
+					'state': this._character.getAnimationStateName()
 				});
 			}
 		}
@@ -298,14 +311,14 @@ class View extends Observable {
 		this._directionalLightHelper.update();
 		*/
 
-		for (let userId in this._users) {
+		for (const userId in this._users) {
 			this._users[userId].update(timeDelta);
 		}
 
 		this._stats.update();
 
 		this._renderer.render(this._scene, this._camera);
-	};
+	}
 
 	_createGui() {
 		const properties = {
@@ -326,7 +339,7 @@ class View extends Observable {
 			'diretionalPosX': this._directionalLight.position.x,
 			'diretionalPosY': this._directionalLight.position.y,
 			'diretionalPosZ': this._directionalLight.position.z
-		}
+		};
 
 		const gui = new GUI({ width: 310 });
 		const folderScene = gui.addFolder('Scene');
@@ -334,78 +347,78 @@ class View extends Observable {
 		const folderHemisphereLight = gui.addFolder('HemisphereLight');
 		const folderDirectionalLight = gui.addFolder('DirectionalLight');
 
-		folderScene.addColor(properties, 'sceneBackground').onChange(function(value) {
+		folderScene.addColor(properties, 'sceneBackground').onChange((value) => {
 			this._scene.background.set(value);
-		}.bind(this));
+		});
 
-		folderScene.addColor(properties, 'sceneFogColor').onChange(function(value) {
+		folderScene.addColor(properties, 'sceneFogColor').onChange((value) => {
 			this._scene.fog.color.set(value);
-		}.bind(this));
+		});
 
-		folderScene.add(properties, 'sceneFogNear', 0, 50).step(0.5).onChange(function(value) {
+		folderScene.add(properties, 'sceneFogNear', 0, 50).step(0.5).onChange((value) => {
 			this._scene.fog.near = value;
-		}.bind(this));
+		});
 
-		folderScene.add(properties, 'sceneFogFar', 0, 50).step(0.5).onChange(function(value) {
+		folderScene.add(properties, 'sceneFogFar', 0, 50).step(0.5).onChange((value) => {
 			this._scene.fog.far = value;
-		}.bind(this));
+		});
 
 
-		folderAmbientLight.addColor(properties, 'ambientColor').onChange(function(value) {
+		folderAmbientLight.addColor(properties, 'ambientColor').onChange((value) => {
 			this._ambientLight.color.set(value);
-		}.bind(this));
+		});
 
-		folderAmbientLight.add(properties, 'ambientIntensity', 0, 2).step(0.01).onChange(function(value) {
+		folderAmbientLight.add(properties, 'ambientIntensity', 0, 2).step(0.01).onChange((value) => {
 			this._ambientLight.intensity = value;
-		}.bind(this));
+		});
 
 
-		folderHemisphereLight.addColor(properties, 'hemisphereSkyColor').onChange(function(value) {
+		folderHemisphereLight.addColor(properties, 'hemisphereSkyColor').onChange((value) => {
 			this._hemisphereLight.color.set(value);
-		}.bind(this));
+		});
 
-		folderHemisphereLight.addColor(properties, 'hemisphereGroundColor').onChange(function(value) {
+		folderHemisphereLight.addColor(properties, 'hemisphereGroundColor').onChange((value) => {
 			this._hemisphereLight.groundColor.set(value);
-		}.bind(this));
+		});
 
-		folderHemisphereLight.add(properties, 'hemisphereIntensity', 0, 2).step(0.01).onChange(function(value) {
+		folderHemisphereLight.add(properties, 'hemisphereIntensity', 0, 2).step(0.01).onChange((value) => {
 			this._hemisphereLight.intensity = value;
-		}.bind(this));
+		});
 
 
-		folderDirectionalLight.addColor(properties, 'directionalColor').onChange(function(value) {
+		folderDirectionalLight.addColor(properties, 'directionalColor').onChange((value) => {
 			this._directionalLight.color.set(value);
-		}.bind(this));
+		});
 
-		folderDirectionalLight.add(properties, 'directionalIntensity', 0, 2).step(0.01).onChange(function(value) {
+		folderDirectionalLight.add(properties, 'directionalIntensity', 0, 2).step(0.01).onChange((value) => {
 			this._directionalLight.intensity = value;
-		}.bind(this));
+		});
 
-		folderDirectionalLight.add(properties, 'diretionalPosX', -50, 50).step(0.5).onChange(function(value) {
+		folderDirectionalLight.add(properties, 'diretionalPosX', -50, 50).step(0.5).onChange((value) => {
 			this._directionalLight.position.x = value;
-		}.bind(this));
+		});
 
-		folderDirectionalLight.add(properties, 'diretionalPosY', 1, 50).step(0.5).onChange(function(value) {
+		folderDirectionalLight.add(properties, 'diretionalPosY', 1, 50).step(0.5).onChange((value) => {
 			this._directionalLight.position.y = value;
-		}.bind(this));
+		});
 
-		folderDirectionalLight.add(properties, 'diretionalPosZ', -50, 50).step(0.5).onChange(function(value) {
+		folderDirectionalLight.add(properties, 'diretionalPosZ', -50, 50).step(0.5).onChange((value) => {
 			this._directionalLight.position.z = value;
-		}.bind(this));
+		});
 
 		gui.close();
 	}
 
 
-	_getCanvasHeight() { return this._canvas.offsetHeight; };
-	_getCanvasWidth() { return this._canvas.offsetWidth; };
+	_getCanvasHeight() { return this._canvas.offsetHeight; }
+	_getCanvasWidth() { return this._canvas.offsetWidth; }
 
-	_getCameraAspect() { return this._getCanvasWidth() / this._getCanvasHeight(); };
+	_getCameraAspect() { return this._getCanvasWidth() / this._getCanvasHeight(); }
 
 
 	_onKeyDownHandler(event) {
 		this._inputManager.setKeyState(event.keyCode, true);
-	};
+	}
 
 	_onKeyUpHandler(event) {
 		this._inputManager.setKeyState(event.keyCode, false);
@@ -460,22 +473,22 @@ class View extends Observable {
 				`
 			});
 		}
-	};
+	}
 
 	_onPointerDownHandler(event) {
 		this._inputManager.setMouseState(event.button, true);
-	};
+	}
 
 	_onPointerUpHandler(event) {
 		this._inputManager.setMouseState(event.button, false);
-	};
+	}
 
-	_onResizeHandler(event) {
+	_onResizeHandler() {
 		this._camera.aspect = this._getCameraAspect();
 		this._camera.updateProjectionMatrix();
 
 		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
-	};
+	}
 }
 
 export default View;

@@ -29,53 +29,53 @@ class Controller {
 			transports: ['websocket']
 		});
 
-		this._socket.on('connect', function() {
+		this._socket.on('connect', () => {
 			this._view.connect();
-		}.bind(this));
+		});
 
-		this._socket.on('disconnect', function() {
+		this._socket.on('disconnect', () => {
 			this._socket.close();
 
 			this._view.destroy();
 			this._view.connectView.setErrorMessage('Disconnected');
-		}.bind(this));
+		});
 
-		this._socket.on('connect_error', function(error) {
+		this._socket.on('connect_error', () => {
 			// Fired when a namespace middleware error occurs.
 			this._socket.close();
 
 			this._view.destroy();
 			this._view.connectView.setErrorMessage('Connection Error');
-		}.bind(this));
+		});
 
 
-		this._socket.on('SN_SERVER_CHAT_MESSAGE', function(userName, msg) {
+		this._socket.on('SN_SERVER_CHAT_MESSAGE', (userName, msg) => {
 			this._addChatMessageAction({
 				userName: userName,
 				message: msg
 			});
-		}.bind(this));
+		});
 
-		this._socket.on('SN_SERVER_CLOCK_DATA', function(msg) {
+		this._socket.on('SN_SERVER_CLOCK_DATA', (msg) => {
 			// TODO: VALIDATION
-			let data = JSON.parse(msg);
+			const data = JSON.parse(msg);
 
 			this._view.timerView.setValue(data.time);
-		}.bind(this));
+		});
 
-		this._socket.on('SN_SERVER_LOGIN', function(msg) {
+		this._socket.on('SN_SERVER_LOGIN', (msg) => {
 			// TODO: VALIDATION
-			let data = JSON.parse(msg);
+			const data = JSON.parse(msg);
 
 			this._view.init(data);
-		}.bind(this));
+		});
 
-		this._socket.on('SN_SERVER_TRANSFORM_DATA', function(msg) {
+		this._socket.on('SN_SERVER_TRANSFORM_DATA', (msg) => {
 			// TODO: VALIDATION
-			let data = JSON.parse(msg);
+			const data = JSON.parse(msg);
 
 			this._view.update(data);
-		}.bind(this));
+		});
 	}
 
 	_loginAction(args) {
