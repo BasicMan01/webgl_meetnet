@@ -34,11 +34,11 @@ module.exports = {
 					to: './css/'
 				},
 				{
-					from: './node_modules/three/examples/js/libs/ammo.wasm.js',
+					from: './node_modules/three/examples/jsm/libs/ammo.wasm.js',
 					to: './js/lib/'
 				},
 				{
-					from: './node_modules/three/examples/js/libs/ammo.wasm.wasm',
+					from: './node_modules/three/examples/jsm/libs/ammo.wasm.wasm',
 					to: './js/lib/'
 				},
 				{
