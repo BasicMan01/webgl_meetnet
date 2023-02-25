@@ -7,7 +7,7 @@ class SocketMessage {
 	}
 
 	sendChatMessage(userName: string, message: string): void {
-		this.io.emit('SN_SERVER_CHAT_MESSAGE', userName, this._parseChatMessage(message));
+		this.io.emit('SN_SERVER_CHAT_MESSAGE', userName, this.parseChatMessage(message));
 	}
 
 	sendClockData(data: any): void {
@@ -23,7 +23,7 @@ class SocketMessage {
 	}
 
 
-	private _parseChatMessage(message: string): string {
+	private parseChatMessage(message: string): string {
 		return message.replace(/>/g, '&gt;').replace(/</g, '&lt;');
 	}
 }

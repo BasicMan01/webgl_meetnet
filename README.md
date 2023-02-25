@@ -49,3 +49,7 @@
 ```
 npm run start
 ```
+
+### Call Client ###
+
+* Call `http://127.0.0.1/webgl_metaverse/client/` in Browser
