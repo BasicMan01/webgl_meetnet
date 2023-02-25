@@ -4,7 +4,11 @@ module.exports = {
 		'es2021': true,
 		'node': true
 	},
-	'extends': 'eslint:recommended',
+	'extends': [
+		'eslint:recommended',
+		'plugin:@typescript-eslint/eslint-recommended',
+		'plugin:@typescript-eslint/recommended'
+	],
 	'globals': {
 		'Ammo': true
 	},
@@ -14,6 +18,9 @@ module.exports = {
 		'ecmaVersion': 'latest',
 		'sourceType': 'module'
 	},
+	'plugins': [
+		'@typescript-eslint'
+	],
 	'rules': {
 		'comma-dangle': ['error', 'never'],
 		'comma-style': ['error', 'last'],

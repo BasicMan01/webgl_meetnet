@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		/* Visit https://aka.ms/tsconfig to read more about this file */
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"module": "commonjs",
+		"outDir": "./server/",
+		"rootDir": "./src/server/",
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "es2021"
+	}
+}

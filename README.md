@@ -29,13 +29,23 @@
 	* Copy `.env.template` file and rename it to `.env`
 	* Add or change variable values with your's
 
-3. Build Client
-	```
-	npm run client-prod
-	```
+3. Build Process
+	* Build server
+		```
+		npm run server-prod
+		```
+	* Build client
+		```
+		npm run client-prod
+		```
+	* Build server and client
+		```
+		npm run build-prod
+		```
+
 
 ### Start Server ###
 
 ```
-node src/server/server
+npm run start
 ```
