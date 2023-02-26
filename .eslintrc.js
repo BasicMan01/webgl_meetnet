@@ -5,22 +5,17 @@ module.exports = {
 		'node': true
 	},
 	'extends': [
-		'eslint:recommended',
-		'plugin:@typescript-eslint/eslint-recommended',
-		'plugin:@typescript-eslint/recommended'
+		'eslint:recommended'
 	],
 	'globals': {
 		'Ammo': true
 	},
-	'overrides': [
-	],
+	'overrides': [],
 	'parserOptions': {
 		'ecmaVersion': 'latest',
 		'sourceType': 'module'
 	},
-	'plugins': [
-		'@typescript-eslint'
-	],
+	'root': true,
 	'rules': {
 		'comma-dangle': ['error', 'never'],
 		'comma-style': ['error', 'last'],
