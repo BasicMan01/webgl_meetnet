@@ -1,9 +1,11 @@
-import Config from "./config";
+import Config from './config';
 import Constants from './constants';
-import SocketMessage from "./socketMessage";
+import SocketMessage from './socketMessage';
+import Timer from '../classes/timer';
 import User from './user';
 
 import { performance } from 'perf_hooks';
+
 
 class Platform {
 	private config: Config;
@@ -15,9 +17,7 @@ class Platform {
 	private userOnline: number = 0;
 
 	private timerWorldData: number = 0;
-
-	private startTime: number = 0;
-	private lastTime: number = 0;
+	private timerWaitProcess: Timer;
 
 	private gameStatus: number = Constants.GAME_STOP;
 
@@ -25,6 +25,8 @@ class Platform {
 	constructor(config: Config, socketMessage: SocketMessage) {
 		this.config = config;
 		this.socketMessage = socketMessage;
+
+		this.timerWaitProcess = new Timer(120);
 	}
 
 	update(timeDelta: number): void {
@@ -40,23 +42,9 @@ class Platform {
 
 
 		if (this.gameStatus === Constants.GAME_WAIT) {
-			let currentTime = new Date().getTime();
-
-			if (currentTime - this.lastTime >= 1000) {
-				this.lastTime += 1000;
-
-				const calculatedTime = (this.startTime + 120000 - this.lastTime) / 1000;
-
-				// fallback
-				if (calculatedTime < 0) {
-					this.startTime = new Date().getTime();
-					this.lastTime = this.startTime;
-				}
-
-				this.socketMessage.sendClockData({
-					'time': (this.startTime + 120000 - this.lastTime) / 1000
-				});
-			}
+			this.timerWaitProcess.update((time: number) => {
+				this.socketMessage.sendClockData({ 'time': time });
+			});
 		}
 	}
 
@@ -110,12 +98,12 @@ class Platform {
 		}
 
 		if (currentUserOnline === 0) {
+			this.timerWaitProcess.stop();
 			this.gameStatus = Constants.GAME_STOP;
 		}
 
 		if (currentUserOnline > this.userOnline && this.userOnline === 0) {
-			this.startTime = new Date().getTime();
-			this.lastTime = this.startTime;
+			this.timerWaitProcess.start();
 
 			this.gameStatus = Constants.GAME_WAIT;
 		}
