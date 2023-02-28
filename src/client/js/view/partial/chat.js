@@ -1,27 +1,30 @@
 import Observable from '../../interface/observable.js';
 
 class Chat extends Observable {
+	#chat;
+	#chatMessage;
+
 	constructor() {
 		super();
 
-		this._chat = document.getElementById('chat');
-		this._chatMessage = document.getElementById('chatMessage');
+		this.#chat = document.getElementById('chat');
+		this.#chatMessage = document.getElementById('chatMessage');
 
-		this._chatMessage.addEventListener('keydown', event => {
+		this.#chatMessage.addEventListener('keydown', (event) => {
 			switch (event.code) {
 				case 'Enter': {
 					this.emit('sendChatMessageAction', {
-						'message': this._chatMessage.value
+						'message': this.#chatMessage.value
 					});
 
-					this._chatMessage.value = '';
+					this.#chatMessage.value = '';
 				} break;
 			}
 
 			event.stopPropagation();
 		});
 
-		this._chatMessage.addEventListener('keyup', event => {
+		this.#chatMessage.addEventListener('keyup', (event) => {
 			event.stopPropagation();
 		});
 	}
@@ -42,11 +45,11 @@ class Chat extends Observable {
 	}
 
 	show() {
-		this._chat.classList.remove('hidden');
+		this.#chat.classList.remove('hidden');
 	}
 
 	hide() {
-		this._chat.classList.add('hidden');
+		this.#chat.classList.add('hidden');
 	}
 }
 

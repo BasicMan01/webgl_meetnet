@@ -1,16 +1,19 @@
 class Observable {
+	#callbacks;
+
+
 	constructor() {
-		this._callbacks = new Map();
+		this.#callbacks = new Map();
 	}
 
 	addCallback(token, callback) {
-		if (!this._callbacks.has(token)) {
-			this._callbacks.set(token, callback);
+		if (!this.#callbacks.has(token)) {
+			this.#callbacks.set(token, callback);
 		}
 	}
 
 	emit(token, args) {
-		const callback = this._callbacks.get(token);
+		const callback = this.#callbacks.get(token);
 
 		if (typeof callback === 'function') {
 			return callback(args);

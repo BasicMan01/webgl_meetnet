@@ -2,28 +2,31 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 class ObjectManager {
-	constructor() {
-		this._fbxLoader = new FBXLoader();
-		this._gltfLoader = new GLTFLoader();
+	#fbxLoader;
+	#gltfLoader;
+	#objects = {};
 
-		this._objects = {};
+
+	constructor() {
+		this.#fbxLoader = new FBXLoader();
+		this.#gltfLoader = new GLTFLoader();
 	}
 
 	add(key, path) {
-		this._objects[key] = path;
+		this.#objects[key] = path;
 	}
 
 	load(key, callback) {
-		if (!Object.prototype.hasOwnProperty.call(this._objects, key)) {
+		if (!Object.prototype.hasOwnProperty.call(this.#objects, key)) {
 			return;
 		}
 
-		const path = this._objects[key];
+		const path = this.#objects[key];
 
 		if (path.endsWith('.fbx')) {
-			return this._loadFBX(key, path, callback);
+			return this.#loadFBX(key, path, callback);
 		} else if (path.endsWith('.glb')) {
-			return this._loadGLB(key, path, callback);
+			return this.#loadGLB(key, path, callback);
 		}
 	}
 
@@ -38,14 +41,15 @@ class ObjectManager {
 			if (typeof endCallback === 'function') {
 				endCallback();
 			}
-		}).catch(err => {
+		}).catch((err) => {
 			console.error(err);
 		});
 	}
 
-	_loadFBX(key, path, callback) {
+
+	#loadFBX(key, path, callback) {
 		return new Promise((resolve, reject) => {
-			this._fbxLoader.load(
+			this.#fbxLoader.load(
 				path,
 
 				(object) => {
@@ -68,9 +72,9 @@ class ObjectManager {
 		});
 	}
 
-	_loadGLB(key, path, callback) {
+	#loadGLB(key, path, callback) {
 		return new Promise((resolve, reject) => {
-			this._gltfLoader.load(
+			this.#gltfLoader.load(
 				path,
 
 				(object) => {

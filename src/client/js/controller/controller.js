@@ -3,95 +3,97 @@ import { io } from 'socket.io-client';
 import View from '../view/view.js';
 
 class Controller {
-	constructor() {
-		this._socket = null;
-		this._view = null;
+	#socket = null;
+	#view = null;
 
-		this._init();
+
+	constructor() {
+		this.#init();
 	}
 
-	_init() {
-		this._view = new View();
-		this._view.addCallback('addChatMessageAction', this._addChatMessageAction.bind(this));
-		this._view.addCallback('sendTransformDataAction', this._sendTransformDataAction.bind(this));
+
+	#init() {
+		this.#view = new View();
+		this.#view.addCallback('addChatMessageAction', this.#addChatMessageAction.bind(this));
+		this.#view.addCallback('sendTransformDataAction', this.#sendTransformDataAction.bind(this));
 
 		// partial view
-		this._view.chatView.addCallback('sendChatMessageAction', this._sendChatMessageAction.bind(this));
-		this._view.connectView.addCallback('connectAction', this._connectAction.bind(this));
-		this._view.loginView.addCallback('loginAction', this._loginAction.bind(this));
+		this.#view.chatView.addCallback('sendChatMessageAction', this.#sendChatMessageAction.bind(this));
+		this.#view.connectView.addCallback('connectAction', this.#connectAction.bind(this));
+		this.#view.loginView.addCallback('loginAction', this.#loginAction.bind(this));
 	}
 
-	_connectAction(args) {
-		this._view.connectView.setErrorMessage('Connect...');
+	#connectAction(args) {
+		this.#view.connectView.setErrorMessage('Connect...');
 
-		this._socket = io('ws://' + args.ip + ':' + process.env.SERVER_PORT, {
+		this.#socket = io('ws://' + args.ip + ':' + process.env.SERVER_PORT, {
 			reconnection: false,
 			transports: ['websocket']
 		});
 
-		this._socket.on('connect', () => {
-			this._view.connect();
+		this.#socket.on('connect', () => {
+			this.#view.connect();
 		});
 
-		this._socket.on('disconnect', () => {
-			this._socket.close();
+		this.#socket.on('disconnect', () => {
+			this.#socket.close();
 
-			this._view.destroy();
-			this._view.connectView.setErrorMessage('Disconnected');
+			this.#view.destroy();
+			this.#view.connectView.setErrorMessage('Disconnected');
 		});
 
-		this._socket.on('connect_error', () => {
+		this.#socket.on('connect_error', () => {
 			// Fired when a namespace middleware error occurs.
-			this._socket.close();
+			this.#socket.close();
 
-			this._view.destroy();
-			this._view.connectView.setErrorMessage('Connection Error');
+			this.#view.destroy();
+			this.#view.connectView.setErrorMessage('Connection Error');
 		});
 
 
-		this._socket.on('SN_SERVER_CHAT_MESSAGE', (userName, msg) => {
-			this._addChatMessageAction({
+		this.#socket.on('SN_SERVER_CHAT_MESSAGE', (userName, msg) => {
+			this.#addChatMessageAction({
 				userName: userName,
 				message: msg
 			});
 		});
 
-		this._socket.on('SN_SERVER_CLOCK_DATA', (msg) => {
+		this.#socket.on('SN_SERVER_CLOCK_DATA', (msg) => {
 			// TODO: VALIDATION
 			const data = JSON.parse(msg);
 
-			this._view.timerView.setValue(data.time);
+			this.#view.timerView.setValue(data.time);
 		});
 
-		this._socket.on('SN_SERVER_LOGIN', (msg) => {
+		this.#socket.on('SN_SERVER_LOGIN', (msg) => {
 			// TODO: VALIDATION
 			const data = JSON.parse(msg);
 
-			this._view.init(data);
+			this.#view.init(data);
 		});
 
-		this._socket.on('SN_SERVER_TRANSFORM_DATA', (msg) => {
+		this.#socket.on('SN_SERVER_TRANSFORM_DATA', (msg) => {
 			// TODO: VALIDATION
 			const data = JSON.parse(msg);
 
-			this._view.update(data);
+			this.#view.update(data);
 		});
 	}
 
-	_loginAction(args) {
-		this._socket.emit('SN_CLIENT_LOGIN', args.name, args.gender);
+	#loginAction(args) {
+		this.#socket.emit('SN_CLIENT_LOGIN', args.name, args.gender);
 	}
 
-	_addChatMessageAction(args) {
-		this._view.chatView.addChatMessage(args.userName, args.message);
+	#addChatMessageAction(args) {
+		this.#view.chatView.addChatMessage(args.userName, args.message);
 	}
 
-	_sendChatMessageAction(args) {
-		this._socket.emit('SN_CLIENT_CHAT_MESSAGE', args.message);
+	#sendChatMessageAction(args) {
+		this.#socket.emit('SN_CLIENT_CHAT_MESSAGE', args.message);
 	}
 
-	_sendTransformDataAction(args) {
-		this._socket.emit('SN_CLIENT_TRANSFORM_DATA', args);
+	#sendTransformDataAction(args) {
+		this.#socket.emit('SN_CLIENT_TRANSFORM_DATA', args);
 	}
 }
 

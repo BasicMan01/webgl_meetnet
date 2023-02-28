@@ -59,6 +59,35 @@ Your best bet is to write your own controller to do that. There are plenty of ex
 */
 
 class View extends Observable {
+	#canvas;
+
+	#camera = null;
+	#clock = null;
+	#controls = null;
+	#renderer = null;
+	#scene = null;
+	#stats = null;
+
+	#gridHelper = null;
+	#ambientLight = null;
+	#directionalLight = null;
+	#directionalLightHelper = null;
+	#hemisphereLight = null;
+
+	#objectManager;
+	#inputManager;
+	#musicManager;
+	#soundManager;
+
+	#character = null;
+	#users = {};
+
+	// test vars
+	#timeToSendTransformData = 0.0;
+	#shaderMaterial = null;
+	#sunRotation = 0.0;
+
+
 	constructor() {
 		super();
 
@@ -68,85 +97,69 @@ class View extends Observable {
 		this.loginView = new Login();
 		this.timerView = new Timer();
 
-		this._canvas = document.getElementById('webGlCanvas');
+		this.#canvas = document.getElementById('webGlCanvas');
 
-		this._camera = null;
-		this._controls = null;
-		this._renderer = null;
+		this.#clock = new Clock();
+		this.#scene = new Scene();
+		this.#scene.background = new Color(0x87CEFA);
+		this.#scene.fog = new Fog(0x87CEFA, 10, 50);
 
-		this._gridHelper = null;
+		this.#camera = new PerspectiveCamera(70, this.#getCameraAspect(), 0.1, 500);
+		this.#camera.position.set(0, 2.5, -3.0);
 
-		this._directionalLight = null;
-		this._hemisphereLight = null;
-		this._directionalLight = null;
+		this.#renderer = new WebGLRenderer({ antialias: true });
+		this.#renderer.setPixelRatio(window.devicePixelRatio);
+		this.#renderer.setSize(this.#getCanvasWidth(), this.#getCanvasHeight());
+		this.#renderer.outputEncoding = sRGBEncoding;
 
-		this._clock = new Clock();
-		this._scene = new Scene();
-		this._scene.background = new Color(0x87CEFA);
-		this._scene.fog = new Fog(0x87CEFA, 10, 50);
-
-		this._camera = new PerspectiveCamera(70, this._getCameraAspect(), 0.1, 500);
-		this._camera.position.set(0, 2.5, -3.0);
-
-		this._renderer = new WebGLRenderer({ antialias: true });
-		this._renderer.setPixelRatio(window.devicePixelRatio);
-		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
-		this._renderer.outputEncoding = sRGBEncoding;
-
-		this._stats = new Stats();
+		this.#stats = new Stats();
 
 		// add renderer to the DOM-Tree
-		this._canvas.appendChild(this._renderer.domElement);
-		this._canvas.appendChild(this._stats.dom);
+		this.#canvas.appendChild(this.#renderer.domElement);
+		this.#canvas.appendChild(this.#stats.dom);
 
-		this._controls = new OrbitControls(this._camera, this._renderer.domElement);
-		this._controls.enablePan = false;
-		this._controls.enableZoom = true;
-		this._controls.minDistance = 1.5;
-		this._controls.maxDistance = 10.0;
-		this._controls.minPolarAngle = 0.1;
-		this._controls.maxPolarAngle = 1.7;
-		this._controls.mouseButtons = {
+		this.#controls = new OrbitControls(this.#camera, this.#renderer.domElement);
+		this.#controls.enablePan = false;
+		this.#controls.enableZoom = true;
+		this.#controls.minDistance = 1.5;
+		this.#controls.maxDistance = 10.0;
+		this.#controls.minPolarAngle = 0.1;
+		this.#controls.maxPolarAngle = 1.7;
+		this.#controls.mouseButtons = {
 			LEFT: MOUSE.ROTATE,
 			RIGHT: MOUSE.ROTATE
 		};
-		this._controls.target = new Vector3(0, 1.7, 0);
-		this._controls.update();
+		this.#controls.target = new Vector3(0, 1.7, 0);
+		this.#controls.update();
 
-		this._users = {};
-		this._objectManager = new ObjectManager();
-		this._objectManager.add('world', 'resources/model/house_001.glb');
-		this._objectManager.add('character.female', 'resources/model/character/character_female.fbx');
-		this._objectManager.add('character.male', 'resources/model/character/character_male.fbx');
-		this._objectManager.add('character.animation.idle', 'resources/model/character/animation/idle.fbx');
-		this._objectManager.add('character.animation.walk', 'resources/model/character/animation/walk.fbx');
+		this.#objectManager = new ObjectManager();
+		this.#objectManager.add('world', 'resources/model/house_001.glb');
+		this.#objectManager.add('character.female', 'resources/model/character/character_female.fbx');
+		this.#objectManager.add('character.male', 'resources/model/character/character_male.fbx');
+		this.#objectManager.add('character.animation.idle', 'resources/model/character/animation/idle.fbx');
+		this.#objectManager.add('character.animation.walk', 'resources/model/character/animation/walk.fbx');
 
-		this._inputManager = new InputManager();
+		this.#inputManager = new InputManager();
 
-		this._musicManager = new MusicManager();
-		this._musicManager.add('bg_001', 'resources/music/bg_music_001.mp3');
+		this.#musicManager = new MusicManager();
+		this.#musicManager.add('bg_001', 'resources/music/bg_music_001.mp3');
 
-		this._soundManager = new SoundManager();
-		this._soundManager.add('crows', 'resources/sound/crows-and-other-birds.wav');
-		this._soundManager.add('owl', 'resources/sound/owl-hoot.wav');
+		this.#soundManager = new SoundManager();
+		this.#soundManager.add('crows', 'resources/sound/crows-and-other-birds.wav');
+		this.#soundManager.add('owl', 'resources/sound/owl-hoot.wav');
 
-		this._renderer.domElement.addEventListener('pointerdown', this._onPointerDownHandler.bind(this), false);
-		this._renderer.domElement.addEventListener('pointerup', this._onPointerUpHandler.bind(this), false);
+		this.#renderer.domElement.addEventListener('pointerdown', this.#onPointerDownHandler.bind(this), false);
+		this.#renderer.domElement.addEventListener('pointerup', this.#onPointerUpHandler.bind(this), false);
 
-		window.addEventListener('keydown', this._onKeyDownHandler.bind(this), false);
-		window.addEventListener('keyup', this._onKeyUpHandler.bind(this), false);
-		window.addEventListener('resize', this._onResizeHandler.bind(this), false);
+		window.addEventListener('keydown', this.#onKeyDownHandler.bind(this), false);
+		window.addEventListener('keyup', this.#onKeyUpHandler.bind(this), false);
+		window.addEventListener('resize', this.#onResizeHandler.bind(this), false);
 
-		// test vars
-		this._timeToSendTransformData = 0.0;
-		this._shaderMaterial = null;
-		this._sunRotation = 0.0;
-
-		Ammo().then(lib => {
+		Ammo().then((lib) => {
 			Ammo = lib;
 
-			this._load();
-			this._createGui();
+			this.#load();
+			this.#createGui();
 
 			this.connectView.show();
 		});
@@ -158,11 +171,11 @@ class View extends Observable {
 	}
 
 	destroy() {
-		if (this._character) {
-			this._character.destroy();
+		if (this.#character) {
+			this.#character.destroy();
 		}
 
-		this._musicManager.stop();
+		this.#musicManager.stop();
 
 		this.chatView.hide();
 		this.loginView.hide();
@@ -175,17 +188,17 @@ class View extends Observable {
 		this.chatView.show();
 		this.timerView.show();
 
-		this._musicManager.play('bg_001');
+		this.#musicManager.play('bg_001');
 
-		this._character = new Character(
-			data.id, data.name, this._inputManager, this._camera, this._controls, this._scene
+		this.#character = new Character(
+			data.id, data.name, this.#inputManager, this.#camera, this.#controls, this.#scene
 		);
-		this._character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));
-		this._character.setRotation(new Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
-		this._character.initCameraPosition();
-		this._character.load(this._objectManager, data.gender === 'm' ? 'character.male' : 'character.female');
+		this.#character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));
+		this.#character.setRotation(new Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
+		this.#character.initCameraPosition();
+		this.#character.load(this.#objectManager, data.gender === 'm' ? 'character.male' : 'character.female');
 
-		this._users[data.id] = this._character;
+		this.#users[data.id] = this.#character;
 	}
 
 	update(data) {
@@ -193,45 +206,45 @@ class View extends Observable {
 		const inactiveUsers = [];
 
 		// add local user if active
-		if (this._character) {
-			activeUser[this._character.getId()] = this._users[this._character.getId()];
+		if (this.#character) {
+			activeUser[this.#character.getId()] = this.#users[this.#character.getId()];
 		}
 
 		for (const user of data.user) {
-			if (Object.prototype.hasOwnProperty.call(this._users, user.id)) {
+			if (Object.prototype.hasOwnProperty.call(this.#users, user.id)) {
 				// ignore current user
-				if (!this._users[user.id].isLocalUser()) {
-					this._users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
-					this._users[user.id].setRotation(
+				if (!this.#users[user.id].isLocalUser()) {
+					this.#users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
+					this.#users[user.id].setRotation(
 						new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w)
 					);
-					this._users[user.id].setAnimationState(user.state);
+					this.#users[user.id].setAnimationState(user.state);
 				}
 			} else {
-				this._users[user.id] = new Character(user.id, user.name, null, null, null, this._scene);
+				this.#users[user.id] = new Character(user.id, user.name, null, null, null, this.#scene);
 
-				this._users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
-				this._users[user.id].setRotation(
+				this.#users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
+				this.#users[user.id].setRotation(
 					new Quaternion(user.rotation.x, user.rotation.y, user.rotation.z, user.rotation.w)
 				);
-				this._users[user.id].load(
-					this._objectManager,
+				this.#users[user.id].load(
+					this.#objectManager,
 					user.gender === 'm' ? 'character.male' : 'character.female'
 				);
 			}
 
-			activeUser[user.id] = this._users[user.id];
+			activeUser[user.id] = this.#users[user.id];
 		}
 
 		// find inactive users
-		for (const userId in this._users) {
+		for (const userId in this.#users) {
 			if (!Object.prototype.hasOwnProperty.call(activeUser, userId)) {
-				inactiveUsers.push(this._users[userId]);
+				inactiveUsers.push(this.#users[userId]);
 			}
 		}
 
 		// apply only active users
-		this._users = activeUser;
+		this.#users = activeUser;
 
 		// remove inactive users
 		for (const inactiveUser of inactiveUsers) {
@@ -239,106 +252,107 @@ class View extends Observable {
 		}
 	}
 
-	_load() {
-		this._gridHelper = new GridHelper(50, 50);
-		this._scene.add(this._gridHelper);
 
-		this._ambientLight = new AmbientLight(0x303030, 0.3);
-		this._scene.add(this._ambientLight);
+	#load() {
+		this.#gridHelper = new GridHelper(50, 50);
+		this.#scene.add(this.#gridHelper);
 
-		this._hemisphereLight = new HemisphereLight(0x87CEFA, 0x303030, 0.8);
-		this._scene.add(this._hemisphereLight);
+		this.#ambientLight = new AmbientLight(0x303030, 0.3);
+		this.#scene.add(this.#ambientLight);
 
-		this._directionalLight = new DirectionalLight(0xFFFFFF, 0.8);
-		this._directionalLight.position.set(20, 100, 0);
-		this._scene.add(this._directionalLight);
+		this.#hemisphereLight = new HemisphereLight(0x87CEFA, 0x303030, 0.8);
+		this.#scene.add(this.#hemisphereLight);
 
-		this._directionalLightHelper = new DirectionalLightHelper(this._directionalLight, 5);
-		this._scene.add(this._directionalLightHelper);
+		this.#directionalLight = new DirectionalLight(0xFFFFFF, 0.8);
+		this.#directionalLight.position.set(20, 100, 0);
+		this.#scene.add(this.#directionalLight);
 
-		this._objectManager.load('world', (key, object) => {
-			this._scene.add(object);
-			this._shaderMaterial = new ShaderMaterial(ShaderUtil.wafeAnimation);
+		this.#directionalLightHelper = new DirectionalLightHelper(this.#directionalLight, 5);
+		this.#scene.add(this.#directionalLightHelper);
+
+		this.#objectManager.load('world', (key, object) => {
+			this.#scene.add(object);
+			this.#shaderMaterial = new ShaderMaterial(ShaderUtil.wafeAnimation);
 
 			const shaderTarget = object.getObjectByName('GatewayShader');
 
-			shaderTarget.material = this._shaderMaterial;
+			shaderTarget.material = this.#shaderMaterial;
 		});
 
-		this._render();
+		this.#render();
 	}
 
-	_render() {
-		requestAnimationFrame(this._render.bind(this));
+	#render() {
+		requestAnimationFrame(this.#render.bind(this));
 
-		const timeDelta = this._clock.getDelta();
+		const timeDelta = this.#clock.getDelta();
 
-		if (this._shaderMaterial) {
-			this._shaderMaterial.uniforms.time.value += timeDelta;
+		if (this.#shaderMaterial) {
+			this.#shaderMaterial.uniforms.time.value += timeDelta;
 		}
 
-		if (this._character) {
-			this._timeToSendTransformData += timeDelta;
+		if (this.#character) {
+			this.#timeToSendTransformData += timeDelta;
 
-			if (this._timeToSendTransformData >= 0.1) {
-				this._timeToSendTransformData = 0.0;
+			if (this.#timeToSendTransformData >= 0.1) {
+				this.#timeToSendTransformData = 0.0;
 
 				this.emit('sendTransformDataAction', {
-					'position': this._character.getPosition().toArray(),
-					'rotation': this._character.getRotation().toArray(),
-					'state': this._character.getAnimationStateName()
+					'position': this.#character.getPosition().toArray(),
+					'rotation': this.#character.getRotation().toArray(),
+					'state': this.#character.getAnimationStateName()
 				});
 			}
 		}
 
 		/*
-		this._sunRotation += timeDelta * 0.1;
+		this.#sunRotation += timeDelta * 0.1;
 
-		this._directionalLight.position.x = Math.sin(this._sunRotation) * 100.0;
-		this._directionalLight.position.y = Math.cos(this._sunRotation) * 100.0;
+		this.#directionalLight.position.x = Math.sin(this.#sunRotation) * 100.0;
+		this.#directionalLight.position.y = Math.cos(this.#sunRotation) * 100.0;
 
-		this._hemisphereLight.intensity = MathUtils.clamp(this._directionalLight.position.y / 100, 0, 1);
+		this.#hemisphereLight.intensity = MathUtils.clamp(this.#directionalLight.position.y / 100, 0, 1);
 
-		this._scene.background.setRGB(
-			200 * this._hemisphereLight.intensity / 255,
-			200 * this._hemisphereLight.intensity / 255,
-			255 * this._hemisphereLight.intensity / 255
+		this.#scene.background.setRGB(
+			200 * this.#hemisphereLight.intensity / 255,
+			200 * this.#hemisphereLight.intensity / 255,
+			255 * this.#hemisphereLight.intensity / 255
 		);
 
-		this._scene.fog.color = this._scene.background;
+		this.#scene.fog.color = this.#scene.background;
 
-		this._directionalLightHelper.parent.updateMatrixWorld();
-		this._directionalLightHelper.update();
+		this.#directionalLightHelper.parent.updateMatrixWorld();
+		this.#directionalLightHelper.update();
 		*/
 
-		for (const userId in this._users) {
-			this._users[userId].update(timeDelta);
+		for (const userId in this.#users) {
+			this.#users[userId].update(timeDelta);
 		}
 
-		this._stats.update();
+		this.#stats.update();
 
-		this._renderer.render(this._scene, this._camera);
+		this.#renderer.render(this.#scene, this.#camera);
 	}
 
-	_createGui() {
+	#createGui() {
 		const properties = {
-			'sceneBackground': this._scene.background,
-			'sceneFogColor': this._scene.fog.color,
-			'sceneFogNear': this._scene.fog.near,
-			'sceneFogFar': this._scene.fog.far,
+			'sceneBackground': this.#scene.background,
+			'sceneFogColor': this.#scene.fog.color,
+			'sceneFogNear': this.#scene.fog.near,
+			'sceneFogFar': this.#scene.fog.far,
 
-			'ambientColor': this._ambientLight.color,
-			'ambientIntensity': this._ambientLight.intensity,
+			'ambientColor': this.#ambientLight.color,
+			'ambientIntensity': this.#ambientLight.intensity,
 
-			'hemisphereSkyColor': this._hemisphereLight.color,
-			'hemisphereGroundColor': this._hemisphereLight.groundColor,
-			'hemisphereIntensity': this._hemisphereLight.intensity,
+			'hemisphereSkyColor': this.#hemisphereLight.color,
+			'hemisphereGroundColor': this.#hemisphereLight.groundColor,
+			'hemisphereIntensity': this.#hemisphereLight.intensity,
 
-			'directionalColor': this._directionalLight.color,
-			'directionalIntensity': this._directionalLight.intensity,
-			'diretionalPosX': this._directionalLight.position.x,
-			'diretionalPosY': this._directionalLight.position.y,
-			'diretionalPosZ': this._directionalLight.position.z
+			'directionalColor': this.#directionalLight.color,
+			'directionalIntensity': this.#directionalLight.intensity,
+			'diretionalPosX': this.#directionalLight.position.x,
+			'diretionalPosY': this.#directionalLight.position.y,
+			'diretionalPosZ': this.#directionalLight.position.z
 		};
 
 		const gui = new GUI({ width: 310 });
@@ -348,87 +362,87 @@ class View extends Observable {
 		const folderDirectionalLight = gui.addFolder('DirectionalLight');
 
 		folderScene.addColor(properties, 'sceneBackground').onChange((value) => {
-			this._scene.background.set(value);
+			this.#scene.background.set(value);
 		});
 
 		folderScene.addColor(properties, 'sceneFogColor').onChange((value) => {
-			this._scene.fog.color.set(value);
+			this.#scene.fog.color.set(value);
 		});
 
 		folderScene.add(properties, 'sceneFogNear', 0, 50).step(0.5).onChange((value) => {
-			this._scene.fog.near = value;
+			this.#scene.fog.near = value;
 		});
 
 		folderScene.add(properties, 'sceneFogFar', 0, 50).step(0.5).onChange((value) => {
-			this._scene.fog.far = value;
+			this.#scene.fog.far = value;
 		});
 
 
 		folderAmbientLight.addColor(properties, 'ambientColor').onChange((value) => {
-			this._ambientLight.color.set(value);
+			this.#ambientLight.color.set(value);
 		});
 
 		folderAmbientLight.add(properties, 'ambientIntensity', 0, 2).step(0.01).onChange((value) => {
-			this._ambientLight.intensity = value;
+			this.#ambientLight.intensity = value;
 		});
 
 
 		folderHemisphereLight.addColor(properties, 'hemisphereSkyColor').onChange((value) => {
-			this._hemisphereLight.color.set(value);
+			this.#hemisphereLight.color.set(value);
 		});
 
 		folderHemisphereLight.addColor(properties, 'hemisphereGroundColor').onChange((value) => {
-			this._hemisphereLight.groundColor.set(value);
+			this.#hemisphereLight.groundColor.set(value);
 		});
 
 		folderHemisphereLight.add(properties, 'hemisphereIntensity', 0, 2).step(0.01).onChange((value) => {
-			this._hemisphereLight.intensity = value;
+			this.#hemisphereLight.intensity = value;
 		});
 
 
 		folderDirectionalLight.addColor(properties, 'directionalColor').onChange((value) => {
-			this._directionalLight.color.set(value);
+			this.#directionalLight.color.set(value);
 		});
 
 		folderDirectionalLight.add(properties, 'directionalIntensity', 0, 2).step(0.01).onChange((value) => {
-			this._directionalLight.intensity = value;
+			this.#directionalLight.intensity = value;
 		});
 
 		folderDirectionalLight.add(properties, 'diretionalPosX', -50, 50).step(0.5).onChange((value) => {
-			this._directionalLight.position.x = value;
+			this.#directionalLight.position.x = value;
 		});
 
 		folderDirectionalLight.add(properties, 'diretionalPosY', 1, 50).step(0.5).onChange((value) => {
-			this._directionalLight.position.y = value;
+			this.#directionalLight.position.y = value;
 		});
 
 		folderDirectionalLight.add(properties, 'diretionalPosZ', -50, 50).step(0.5).onChange((value) => {
-			this._directionalLight.position.z = value;
+			this.#directionalLight.position.z = value;
 		});
 
 		gui.close();
 	}
 
 
-	_getCanvasHeight() { return this._canvas.offsetHeight; }
-	_getCanvasWidth() { return this._canvas.offsetWidth; }
+	#getCanvasHeight() { return this.#canvas.offsetHeight; }
+	#getCanvasWidth() { return this.#canvas.offsetWidth; }
 
-	_getCameraAspect() { return this._getCanvasWidth() / this._getCanvasHeight(); }
+	#getCameraAspect() { return this.#getCanvasWidth() / this.#getCanvasHeight(); }
 
 
-	_onKeyDownHandler(event) {
-		this._inputManager.setKeyState(event.keyCode, true);
+	#onKeyDownHandler(event) {
+		this.#inputManager.setKeyState(event.keyCode, true);
 	}
 
-	_onKeyUpHandler(event) {
-		this._inputManager.setKeyState(event.keyCode, false);
+	#onKeyUpHandler(event) {
+		this.#inputManager.setKeyState(event.keyCode, false);
 
 		if (event.keyCode === InputManager.KEY_1) {
-			this._soundManager.play('crows');
+			this.#soundManager.play('crows');
 		}
 
 		if (event.keyCode === InputManager.KEY_2) {
-			this._soundManager.play('owl');
+			this.#soundManager.play('owl');
 		}
 
 		if (event.keyCode === InputManager.KEY_3) {
@@ -440,34 +454,34 @@ class View extends Observable {
 					<table>
 						<tr>
 							<td>Programs:</td>
-							<td>${this._renderer.info.memory.programs}</td>
+							<td>${this.#renderer.info.memory.programs}</td>
 						</tr>
 						<tr>
 							<td>Geometries:</td>
-							<td>${this._renderer.info.memory.geometries}</td>
+							<td>${this.#renderer.info.memory.geometries}</td>
 						</tr>
 						<tr>
 							<td>Textures:</td>
-							<td>${this._renderer.info.memory.textures}</td>
+							<td>${this.#renderer.info.memory.textures}</td>
 						</tr>
 					</table>
 					===== Render =====<br>
 					<table>
 						<tr>
 							<td>Calls:</td>
-							<td>${this._renderer.info.render.calls}</td>
+							<td>${this.#renderer.info.render.calls}</td>
 						</tr>
 						<tr>
 							<td>Vertices:</td>
-							<td>${this._renderer.info.render.vertices}</td>
+							<td>${this.#renderer.info.render.vertices}</td>
 						</tr>
 						<tr>
 							<td>Faces:</td>
-							<td>${this._renderer.info.render.faces}</td>
+							<td>${this.#renderer.info.render.faces}</td>
 						</tr>
 						<tr>
 							<td>Points:</td>
-							<td>${this._renderer.info.render.points}</td>
+							<td>${this.#renderer.info.render.points}</td>
 						</tr>
 					</table>
 				`
@@ -475,19 +489,19 @@ class View extends Observable {
 		}
 	}
 
-	_onPointerDownHandler(event) {
-		this._inputManager.setMouseState(event.button, true);
+	#onPointerDownHandler(event) {
+		this.#inputManager.setMouseState(event.button, true);
 	}
 
-	_onPointerUpHandler(event) {
-		this._inputManager.setMouseState(event.button, false);
+	#onPointerUpHandler(event) {
+		this.#inputManager.setMouseState(event.button, false);
 	}
 
-	_onResizeHandler() {
-		this._camera.aspect = this._getCameraAspect();
-		this._camera.updateProjectionMatrix();
+	#onResizeHandler() {
+		this.#camera.aspect = this.#getCameraAspect();
+		this.#camera.updateProjectionMatrix();
 
-		this._renderer.setSize(this._getCanvasWidth(), this._getCanvasHeight());
+		this.#renderer.setSize(this.#getCanvasWidth(), this.#getCanvasHeight());
 	}
 }
 

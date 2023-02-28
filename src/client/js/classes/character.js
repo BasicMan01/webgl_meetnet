@@ -10,28 +10,39 @@ import InputManager from './inputManager.js';
 import SpriteUtil from '../util/spriteUtil.js';
 
 class Character {
+	#camera;
+	#controls;
+	#scene;
+	#inputManager;
+
+	#id;
+	#name;
+	#localUser;
+	#model = null;
+	#object;
+	#animations = {};
+
+	#mixer = null;
+	#currentAnimation = null;
+
+
 	constructor(id, name, inputManager, camera, controls, scene) {
-		this._camera = camera;
-		this._controls = controls;
-		this._scene = scene;
-		this._inputManager = inputManager;
+		this.#camera = camera;
+		this.#controls = controls;
+		this.#scene = scene;
+		this.#inputManager = inputManager;
 
-		this._id = id;
-		this._name = name;
-		this._localUser = inputManager ? true : false;
-		this._model = null;
-		this._object = new Group();
-		this._animations = {};
+		this.#id = id;
+		this.#name = name;
+		this.#localUser = inputManager ? true : false;
+		this.#object = new Group();
 
-		this._mixer = null;
-		this._currentAnimation = null;
-
-		this._scene.add(this._object);
+		this.#scene.add(this.#object);
 	}
 
 	destroy() {
-		if (this._model) {
-			this._model.traverse(child => {
+		if (this.#model) {
+			this.#model.traverse((child) => {
 				if (child.material) {
 					child.material.dispose();
 				}
@@ -41,22 +52,22 @@ class Character {
 				}
 			});
 
-			this._model = null;
+			this.#model = null;
 		}
 
-		this._scene.remove(this._object);
+		this.#scene.remove(this.#object);
 	}
 
 	isLocalUser() {
-		return this._localUser;
+		return this.#localUser;
 	}
 
 	getAnimationStateName() {
-		return this._currentAnimation ? this._currentAnimation.name : 'character.animation.idle';
+		return this.#currentAnimation ? this.#currentAnimation.name : 'character.animation.idle';
 	}
 
 	setAnimationState(state) {
-		const previewAction = this._currentAnimation;
+		const previewAction = this.#currentAnimation;
 
 		if (previewAction) {
 			if (previewAction.name === state) {
@@ -64,48 +75,48 @@ class Character {
 			}
 		}
 
-		if (!Object.prototype.hasOwnProperty.call(this._animations, state)) {
+		if (!Object.prototype.hasOwnProperty.call(this.#animations, state)) {
 			return;
 		}
 
-		this._currentAnimation = this._animations[state];
+		this.#currentAnimation = this.#animations[state];
 
 		switch (state) {
 			case 'character.animation.idle':
-				this._setIdle(previewAction);
+				this.#setIdle(previewAction);
 				break;
 
 			case 'character.animation.walk':
-				this._setWalk(previewAction);
+				this.#setWalk(previewAction);
 				break;
 		}
 	}
 
 	getId() {
-		return this._id;
+		return this.#id;
 	}
 
 	getPosition() {
-		return this._object.position;
+		return this.#object.position;
 	}
 
 	setPosition(vector3) {
-		this._object.position.copy(vector3);
+		this.#object.position.copy(vector3);
 	}
 
 	getRotation() {
-		return this._object.quaternion;
+		return this.#object.quaternion;
 	}
 
 	setRotation(quaternion) {
-		this._object.quaternion.copy(quaternion);
+		this.#object.quaternion.copy(quaternion);
 	}
 
 	load(objectManager, key) {
 		objectManager.load(key, (key, object) => {
 			object.scale.setScalar(0.01);
 
-			this._setModel(object);
+			this.#setModel(object);
 
 			objectManager.loadAll(
 				[
@@ -113,7 +124,7 @@ class Character {
 					'character.animation.walk'
 				],
 				(key, object) => {
-					this._addAnimation(key, object.animations[0]);
+					this.#addAnimation(key, object.animations[0]);
 				},
 				() => {
 					this.setAnimationState('character.animation.idle');
@@ -123,82 +134,83 @@ class Character {
 	}
 
 	update(timeDelta) {
-		if (this._inputManager) {
-			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
+		if (this.#inputManager) {
+			if (this.#inputManager.getKeyState(InputManager.KEY_W)) {
 				this.setAnimationState('character.animation.walk');
 			} else {
 				this.setAnimationState('character.animation.idle');
 			}
 
-			if (this._inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
-				const rotation = new Euler().setFromQuaternion(this._camera.quaternion, 'YXZ');
+			if (this.#inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
+				const rotation = new Euler().setFromQuaternion(this.#camera.quaternion, 'YXZ');
 
-				this._object.rotation.y = rotation.y + Math.PI;
+				this.#object.rotation.y = rotation.y + Math.PI;
 			}
 
-			if (this._inputManager.getKeyState(InputManager.KEY_W)) {
+			if (this.#inputManager.getKeyState(InputManager.KEY_W)) {
 				const forward = new Vector3(0, 0, 1);
 
-				forward.applyQuaternion(this._object.quaternion);
+				forward.applyQuaternion(this.#object.quaternion);
 				forward.normalize();
 
 				// for walk: timeDelta * 1.5
 				// for run: timeDelta * 3.0
 				forward.multiplyScalar(timeDelta * 1.5);
 
-				this._object.position.add(forward);
-				this._camera.position.add(forward);
+				this.#object.position.add(forward);
+				this.#camera.position.add(forward);
 
 				// orbit controls rotate around new position
-				this._controls.target.copy(new Vector3(this._object.position.x, 1.7, this._object.position.z));
-				this._controls.update();
+				this.#controls.target.copy(new Vector3(this.#object.position.x, 1.7, this.#object.position.z));
+				this.#controls.update();
 			}
 		} else {
 			if (this.getAnimationStateName() === 'character.animation.walk') {
 				const forward = new Vector3(0, 0, 1);
 
-				forward.applyQuaternion(this._object.quaternion);
+				forward.applyQuaternion(this.#object.quaternion);
 				forward.normalize();
 
 				// for walk: timeDelta * 1.5
 				// for run: timeDelta * 3.0
 				forward.multiplyScalar(timeDelta * 1.5);
 
-				this._object.position.add(forward);
+				this.#object.position.add(forward);
 			}
 		}
 
-		if (this._mixer) {
-			this._mixer.update(timeDelta);
+		if (this.#mixer) {
+			this.#mixer.update(timeDelta);
 		}
 	}
 
 	initCameraPosition() {
-		this._camera.position.copy(this._calculateCameraOffset());
+		this.#camera.position.copy(this.#calculateCameraOffset());
 	}
 
-	_addAnimation(key, animation) {
-		this._animations[key] = {
+
+	#addAnimation(key, animation) {
+		this.#animations[key] = {
 			'name': key,
-			'action': this._mixer.clipAction(animation)
+			'action': this.#mixer.clipAction(animation)
 		};
 	}
 
-	_calculateCameraOffset() {
+	#calculateCameraOffset() {
 		const cameraOffset = new Vector3(0, 2.5, -3.0);
 
-		cameraOffset.applyQuaternion(this._object.quaternion);
-		cameraOffset.add(this._object.position);
+		cameraOffset.applyQuaternion(this.#object.quaternion);
+		cameraOffset.add(this.#object.position);
 
 		return cameraOffset;
 	}
 
-	_createNameSprite() {
+	#createNameSprite() {
 		const box3 = new Box3();
 		const size = new Vector3();
-		const sprite = SpriteUtil.createSprite(this._name);
+		const sprite = SpriteUtil.createSprite(this.#name);
 
-		box3.setFromObject(this._model).getSize(size);
+		box3.setFromObject(this.#model).getSize(size);
 
 		sprite.scale.set(1, 0.5, 1);
 		sprite.position.y += size.y + 0.2;
@@ -206,18 +218,18 @@ class Character {
 		return sprite;
 	}
 
-	_setModel(model) {
-		this._model = model;
+	#setModel(model) {
+		this.#model = model;
 
-		this._mixer = new AnimationMixer(this._model);
+		this.#mixer = new AnimationMixer(this.#model);
 
-		this._object.add(this._model);
-		this._object.add(this._createNameSprite());
+		this.#object.add(this.#model);
+		this.#object.add(this.#createNameSprite());
 	}
 
 	// TODO - State Machine
-	_setIdle(previewAction) {
-		const currentAction = this._animations['character.animation.idle'].action;
+	#setIdle(previewAction) {
+		const currentAction = this.#animations['character.animation.idle'].action;
 
 		if (previewAction) {
 			currentAction.time = 0.0;
@@ -232,8 +244,8 @@ class Character {
 		}
 	}
 
-	_setWalk(previewAction) {
-		const currentAction = this._animations['character.animation.walk'].action;
+	#setWalk(previewAction) {
+		const currentAction = this.#animations['character.animation.walk'].action;
 
 		if (previewAction) {
 			currentAction.time = 0.0;

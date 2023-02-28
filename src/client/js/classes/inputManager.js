@@ -1,31 +1,33 @@
 class InputManager {
+	#keys = {};
+	#mouseButtons = {};
+
+
 	constructor() {
-		this._keys = {};
-		this._mouseButtons = {};
 	}
 
 	getKeyState(key) {
-		if (Object.prototype.hasOwnProperty.call(this._keys, key)) {
-			return this._keys[key];
+		if (Object.prototype.hasOwnProperty.call(this.#keys, key)) {
+			return this.#keys[key];
 		}
 
 		return false;
 	}
 
 	getMouseState(key) {
-		if (Object.prototype.hasOwnProperty.call(this._mouseButtons, key)) {
-			return this._mouseButtons[key];
+		if (Object.prototype.hasOwnProperty.call(this.#mouseButtons, key)) {
+			return this.#mouseButtons[key];
 		}
 
 		return false;
 	}
 
 	setKeyState(key, state) {
-		this._keys[key] = state;
+		this.#keys[key] = state;
 	}
 
 	setMouseState(key, state) {
-		this._mouseButtons[key] = state;
+		this.#mouseButtons[key] = state;
 	}
 
 	// constants workaround

@@ -1,24 +1,27 @@
 import Observable from '../../interface/observable.js';
 
 class Login extends Observable {
+	#login;
+	#name;
+
 	constructor() {
 		super();
 
-		this._login = document.getElementById('login');
-		this._name = document.getElementById('name');
+		this.#login = document.getElementById('login');
+		this.#name = document.getElementById('name');
 
-		this._name.addEventListener('keydown', (event) => {
+		this.#name.addEventListener('keydown', (event) => {
 			event.stopPropagation();
 		});
 
-		this._name.addEventListener('keyup', (event) => {
+		this.#name.addEventListener('keyup', (event) => {
 			event.stopPropagation();
 		});
 
 		document.getElementById('btnLogin').addEventListener('click', () => {
-			if (this._validate()) {
+			if (this.#validate()) {
 				this.emit('loginAction', {
-					'name': this._name.value,
+					'name': this.#name.value,
 					'gender': document.querySelector('input[name="gender"]:checked').value
 				});
 			}
@@ -26,22 +29,23 @@ class Login extends Observable {
 	}
 
 	show() {
-		this._login.classList.remove('hidden');
+		this.#login.classList.remove('hidden');
 	}
 
 	hide() {
-		this._login.classList.add('hidden');
+		this.#login.classList.add('hidden');
 	}
 
-	_validate() {
+
+	#validate() {
 		const checkedGender = document.querySelector('input[name="gender"]:checked');
 
 		let valid = true;
 
-		if (this._name.value.length) {
-			this._name.closest('.form-field').classList.remove('input-error');
+		if (this.#name.value.length) {
+			this.#name.closest('.form-field').classList.remove('input-error');
 		} else {
-			this._name.closest('.form-field').classList.add('input-error');
+			this.#name.closest('.form-field').classList.add('input-error');
 			valid = false;
 		}
 

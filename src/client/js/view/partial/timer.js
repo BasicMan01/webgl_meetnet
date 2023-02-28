@@ -1,25 +1,28 @@
 import Observable from '../../interface/observable.js';
 
 class Timer extends Observable {
+	#timer;
+
 	constructor() {
 		super();
 
-		this._timer = document.getElementById('timer');
+		this.#timer = document.getElementById('timer');
 	}
 
 	show() {
-		this._timer.classList.remove('hidden');
+		this.#timer.classList.remove('hidden');
 	}
 
 	hide() {
-		this._timer.classList.add('hidden');
+		this.#timer.classList.add('hidden');
 	}
 
 	setValue(value) {
-		this._timer.innerText = this._formatTime(value);
+		this.#timer.innerText = this.#formatTime(value);
 	}
 
-	_formatTime(seconds) {
+
+	#formatTime(seconds) {
 		const restSeconds = seconds % 60;
 		const minutes = (seconds - restSeconds) / 60;
 
