@@ -1,15 +1,15 @@
-import Config from "../model/config";
-import Platform from "../model/platform";
-import SocketMessage from "../model/socketMessage";
+import Config from '../model/config';
+import Platform from '../model/platform';
+import SocketMessage from '../model/socketMessage';
 
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
 const http = createServer();
 const io = new Server (http, {
-  cors: {
-    origin: '*'
-  }
+	cors: {
+		origin: '*'
+	}
 });
 
 

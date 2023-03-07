@@ -33,9 +33,9 @@ class Timer {
 				if (typeof stepCallback === 'function') {
 					stepCallback(calculatedTime);
 				}
-				//this.socketMessage.sendClockData({
+				// this.socketMessage.sendClockData({
 				//	'time': (this.startTime + this.initialTime - this.lastTime) / 1000
-				//});
+				// });
 			}
 		}
 	}

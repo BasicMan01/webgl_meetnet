@@ -10,7 +10,31 @@ module.exports = {
 	'globals': {
 		'Ammo': true
 	},
-	'overrides': [],
+	'overrides': [
+		{
+			'files': ['**/*.ts'],
+			'env': {
+				'browser': true,
+				'es2021': true,
+				'node': true
+			},
+			'extends': [
+				'plugin:@typescript-eslint/eslint-recommended',
+				'plugin:@typescript-eslint/recommended'
+			],
+			'parser': '@typescript-eslint/parser',
+			'parserOptions': {
+				'project': './tsconfig.json'
+			},
+			'plugins': [
+				'@typescript-eslint'
+			],
+			'rules': {
+				'@typescript-eslint/no-inferrable-types': 'off',
+				'@typescript-eslint/semi': ['error', 'always']
+			}
+		}
+	],
 	'parserOptions': {
 		'ecmaVersion': 'latest',
 		'sourceType': 'module'
