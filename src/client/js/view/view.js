@@ -27,6 +27,7 @@ import Observable from '../interface/observable.js';
 import Character from '../classes/character.js';
 import InputManager from '../classes/inputManager.js';
 import MusicManager from '../classes/musicManager.js';
+import PhysicManager from '../classes/physicManager.js';
 import SoundManager from '../classes/soundManager.js';
 import ObjectManager from '../classes/objectManager.js';
 
@@ -77,6 +78,7 @@ class View extends Observable {
 	#objectManager;
 	#inputManager;
 	#musicManager;
+	#physicManager;
 	#soundManager;
 
 	#character = null;
@@ -144,6 +146,8 @@ class View extends Observable {
 		this.#musicManager = new MusicManager();
 		this.#musicManager.add('bg_001', 'resources/music/bg_music_001.mp3');
 
+		this.#physicManager = new PhysicManager();
+
 		this.#soundManager = new SoundManager();
 		this.#soundManager.add('crows', 'resources/sound/crows-and-other-birds.wav');
 		this.#soundManager.add('owl', 'resources/sound/owl-hoot.wav');
@@ -155,9 +159,7 @@ class View extends Observable {
 		window.addEventListener('keyup', this.#onKeyUpHandler.bind(this), false);
 		window.addEventListener('resize', this.#onResizeHandler.bind(this), false);
 
-		Ammo().then((lib) => {
-			Ammo = lib;
-
+		this.#physicManager.init(() => {
 			this.#load();
 			this.#createGui();
 
@@ -277,6 +279,8 @@ class View extends Observable {
 			const shaderTarget = object.getObjectByName('GatewayShader');
 
 			shaderTarget.material = this.#shaderMaterial;
+
+			this.#physicManager.addCollider(object);
 		});
 
 		this.#render();
@@ -328,6 +332,8 @@ class View extends Observable {
 		for (const userId in this.#users) {
 			this.#users[userId].update(timeDelta);
 		}
+
+		this.#physicManager.update();
 
 		this.#stats.update();
 

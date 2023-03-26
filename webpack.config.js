@@ -6,6 +6,9 @@ module.exports = {
 	entry: [
 		'./src/client/js/app.js'
 	],
+	experiments: {
+		asyncWebAssembly: true
+	},
 	output: {
 		path: require('path').resolve('./client'),
 		filename: './js/app.js'
