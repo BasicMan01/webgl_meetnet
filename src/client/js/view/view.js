@@ -259,13 +259,13 @@ class View extends Observable {
 		this.#gridHelper = new GridHelper(50, 50);
 		this.#scene.add(this.#gridHelper);
 
-		this.#ambientLight = new AmbientLight(0x303030, 0.3);
+		this.#ambientLight = new AmbientLight(0x303030, 0.4);
 		this.#scene.add(this.#ambientLight);
 
-		this.#hemisphereLight = new HemisphereLight(0x87CEFA, 0x303030, 0.8);
+		this.#hemisphereLight = new HemisphereLight(0xFFFFFF, 0x080820, 0.5);
 		this.#scene.add(this.#hemisphereLight);
 
-		this.#directionalLight = new DirectionalLight(0xFFFFFF, 0.8);
+		this.#directionalLight = new DirectionalLight(0xFFFFFF, 0.5);
 		this.#directionalLight.position.set(20, 100, 0);
 		this.#scene.add(this.#directionalLight);
 
@@ -414,15 +414,15 @@ class View extends Observable {
 			this.#directionalLight.intensity = value;
 		});
 
-		folderDirectionalLight.add(properties, 'diretionalPosX', -50, 50).step(0.5).onChange((value) => {
+		folderDirectionalLight.add(properties, 'diretionalPosX', -100, 100).step(0.5).onChange((value) => {
 			this.#directionalLight.position.x = value;
 		});
 
-		folderDirectionalLight.add(properties, 'diretionalPosY', 1, 50).step(0.5).onChange((value) => {
+		folderDirectionalLight.add(properties, 'diretionalPosY', 1, 100).step(0.5).onChange((value) => {
 			this.#directionalLight.position.y = value;
 		});
 
-		folderDirectionalLight.add(properties, 'diretionalPosZ', -50, 50).step(0.5).onChange((value) => {
+		folderDirectionalLight.add(properties, 'diretionalPosZ', -100, 100).step(0.5).onChange((value) => {
 			this.#directionalLight.position.z = value;
 		});
 
