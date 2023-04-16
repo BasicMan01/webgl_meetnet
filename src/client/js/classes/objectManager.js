@@ -65,7 +65,8 @@ class ObjectManager {
 					console.info((xhr.loaded / xhr.total * 10) + '% loaded');
 				},
 
-				() => {
+				(e) => {
+					console.error(e);
 					reject(path + ' failed to load');
 				}
 			);
@@ -90,7 +91,8 @@ class ObjectManager {
 					console.info((xhr.loaded / xhr.total * 10) + '% loaded');
 				},
 
-				() => {
+				(e) => {
+					console.error(e);
 					reject(path + ' failed to load');
 				}
 			);

@@ -1,5 +1,6 @@
 import {
 	AmbientLight,
+	BufferGeometry,
 	Clock,
 	Color,
 	DirectionalLight,
@@ -7,6 +8,8 @@ import {
 	Fog,
 	GridHelper,
 	HemisphereLight,
+	LineBasicMaterial,
+	LineSegments,
 	// MathUtils,
 	MOUSE,
 	PerspectiveCamera,
@@ -69,6 +72,7 @@ class View extends Observable {
 	#scene = null;
 	#stats = null;
 
+	#debugHelper = null;
 	#gridHelper = null;
 	#ambientLight = null;
 	#directionalLight = null;
@@ -135,7 +139,7 @@ class View extends Observable {
 		this.#controls.update();
 
 		this.#objectManager = new ObjectManager();
-		this.#objectManager.add('world', 'resources/model/house_001.glb');
+		this.#objectManager.add('world', 'resources/model/terrain.fbx');
 		this.#objectManager.add('character.female', 'resources/model/character/character_female.fbx');
 		this.#objectManager.add('character.male', 'resources/model/character/character_male.fbx');
 		this.#objectManager.add('character.animation.idle', 'resources/model/character/animation/idle.fbx');
@@ -193,7 +197,7 @@ class View extends Observable {
 		this.#musicManager.play('bg_001');
 
 		this.#character = new Character(
-			data.id, data.name, this.#inputManager, this.#camera, this.#controls, this.#scene
+			data.id, data.name, this.#inputManager, this.#physicManager, this.#camera, this.#controls, this.#scene
 		);
 		this.#character.setPosition(new Vector3(data.position.x, data.position.y, data.position.z));
 		this.#character.setRotation(new Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w));
@@ -223,7 +227,7 @@ class View extends Observable {
 					this.#users[user.id].setAnimationState(user.state);
 				}
 			} else {
-				this.#users[user.id] = new Character(user.id, user.name, null, null, null, this.#scene);
+				this.#users[user.id] = new Character(user.id, user.name, null, null, null, null, this.#scene);
 
 				this.#users[user.id].setPosition(new Vector3(user.position.x, user.position.y, user.position.z));
 				this.#users[user.id].setRotation(
@@ -259,6 +263,15 @@ class View extends Observable {
 		this.#gridHelper = new GridHelper(50, 50);
 		this.#scene.add(this.#gridHelper);
 
+		this.#debugHelper = new LineSegments(
+			new BufferGeometry(),
+			new LineBasicMaterial({
+				color: 0xFFFFFF,
+				vertexColors: true
+			})
+		);
+		this.#scene.add(this.#debugHelper);
+
 		this.#ambientLight = new AmbientLight(0x303030, 0.4);
 		this.#scene.add(this.#ambientLight);
 
@@ -273,12 +286,15 @@ class View extends Observable {
 		this.#scene.add(this.#directionalLightHelper);
 
 		this.#objectManager.load('world', (key, object) => {
+			console.log(this.#scene);
 			this.#scene.add(object);
 			this.#shaderMaterial = new ShaderMaterial(ShaderUtil.wafeAnimation);
 
 			const shaderTarget = object.getObjectByName('GatewayShader');
 
-			shaderTarget.material = this.#shaderMaterial;
+			if (shaderTarget) {
+				shaderTarget.material = this.#shaderMaterial;
+			}
 
 			this.#physicManager.addCollider(object);
 		});
@@ -333,7 +349,7 @@ class View extends Observable {
 			this.#users[userId].update(timeDelta);
 		}
 
-		this.#physicManager.update();
+		this.#physicManager.update(this.#debugHelper);
 
 		this.#stats.update();
 

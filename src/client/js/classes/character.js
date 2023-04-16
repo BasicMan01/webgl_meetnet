@@ -14,30 +14,34 @@ class Character {
 	#controls;
 	#scene;
 	#inputManager;
+	#physicManager;
 
 	#id;
 	#name;
 	#localUser;
 	#model = null;
-	#object;
+	#object = new Group();
+	#velocity = new Vector3(1.5, 9.81, 1.5);
 	#animations = {};
 
 	#mixer = null;
 	#currentAnimation = null;
 
 
-	constructor(id, name, inputManager, camera, controls, scene) {
+	constructor(id, name, inputManager, physicManager, camera, controls, scene) {
 		this.#camera = camera;
 		this.#controls = controls;
 		this.#scene = scene;
 		this.#inputManager = inputManager;
+		this.#physicManager = physicManager;
 
 		this.#id = id;
 		this.#name = name;
 		this.#localUser = inputManager ? true : false;
-		this.#object = new Group();
 
 		this.#scene.add(this.#object);
+
+		this.#physicManager.createCharacterCollider(this.#object);
 	}
 
 	destroy() {
@@ -147,6 +151,32 @@ class Character {
 				this.#object.rotation.y = rotation.y + Math.PI;
 			}
 
+			const isForward = this.#inputManager.getKeyState(InputManager.KEY_W);
+			const direction = new Vector3(0, -1, isForward ? 1 : 0);
+
+			direction.applyQuaternion(this.#object.quaternion);
+			direction.normalize();
+			direction.multiply(this.#velocity);
+			direction.multiplyScalar(timeDelta);
+
+			const correctedMovement = this.#physicManager.getNextMovement(this.#object.userData.collider, direction);
+			const translation = this.#object.userData.rigidBody.translation();
+
+			this.#object.userData.rigidBody.setNextKinematicTranslation({
+				x: translation.x + correctedMovement.x,
+				y: translation.y + correctedMovement.y,
+				z: translation.z + correctedMovement.z
+			});
+
+			this.#object.position.add(correctedMovement);
+			this.#camera.position.add(correctedMovement);
+
+			this.#controls.target.copy(
+				new Vector3(this.#object.position.x, this.#object.position.y + 1.7, this.#object.position.z)
+			);
+			this.#controls.update();
+
+			/*
 			if (this.#inputManager.getKeyState(InputManager.KEY_W)) {
 				const forward = new Vector3(0, 0, 1);
 
@@ -164,6 +194,7 @@ class Character {
 				this.#controls.target.copy(new Vector3(this.#object.position.x, 1.7, this.#object.position.z));
 				this.#controls.update();
 			}
+			*/
 		} else {
 			if (this.getAnimationStateName() === 'character.animation.walk') {
 				const forward = new Vector3(0, 0, 1);
