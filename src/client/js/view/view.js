@@ -139,7 +139,7 @@ class View extends Observable {
 		this.#controls.update();
 
 		this.#objectManager = new ObjectManager();
-		this.#objectManager.add('world', 'resources/model/terrain.fbx');
+		this.#objectManager.add('world', 'resources/model/world/world.glb');
 		this.#objectManager.add('character.female', 'resources/model/character/character_female.fbx');
 		this.#objectManager.add('character.male', 'resources/model/character/character_male.fbx');
 		this.#objectManager.add('character.animation.idle', 'resources/model/character/animation/idle.fbx');
@@ -286,17 +286,16 @@ class View extends Observable {
 		this.#scene.add(this.#directionalLightHelper);
 
 		this.#objectManager.load('world', (key, object) => {
-			console.log(this.#scene);
-			this.#scene.add(object);
-			this.#shaderMaterial = new ShaderMaterial(ShaderUtil.wafeAnimation);
-
 			const shaderTarget = object.getObjectByName('GatewayShader');
 
 			if (shaderTarget) {
+				this.#shaderMaterial = new ShaderMaterial(ShaderUtil.wafeAnimation);
+
 				shaderTarget.material = this.#shaderMaterial;
 			}
 
 			this.#physicManager.addCollider(object);
+			this.#scene.add(object);
 		});
 
 		this.#render();

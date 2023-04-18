@@ -1,6 +1,8 @@
 import {
 	BufferAttribute,
-	Mesh
+	Mesh,
+	Quaternion,
+	Vector3
 } from 'three';
 
 class PhysicManager {
@@ -20,12 +22,13 @@ class PhysicManager {
 			console.info('Physic Engine RAPIER loaded - Version: ' + RAPIER.version());
 
 			this.#engine = RAPIER;
-			this.#world = new this.#engine.World({ x: 0.0, y: -60, z: 0.0 });
+			this.#world = new this.#engine.World({ x: 0.0, y: -9.81, z: 0.0 });
 
 			this.#characterController = this.#world.createCharacterController(0.01);
 			this.#characterController.setUp({ x: 0.0, y: 1.0, z: 0.0 });
 			this.#characterController.setMaxSlopeClimbAngle(60 * Math.PI / 180);
-			this.#characterController.setMinSlopeSlideAngle(45 * Math.PI / 180);
+			// this.#characterController.setMinSlopeSlideAngle(45 * Math.PI / 180);
+			this.#characterController.setMinSlopeSlideAngle(60 * Math.PI / 180); // for stairs
 			this.#characterController.enableAutostep(0.3, 0.2, true);
 			this.#characterController.enableSnapToGround(0.5);
 
@@ -36,29 +39,31 @@ class PhysicManager {
 	}
 
 	addCollider(model) {
-		console.log(model);
-
 		model.traverse((child) => {
+			const worldPosition = new Vector3();
+			const worldQuaternion = new Quaternion();
+
 			if (child instanceof Mesh) {
 				try {
-					const addColission = child.userData.collision ? child.userData.collision : 1;
+					const addColission = child.userData.collision ? child.userData.collision : 0;
 
 					if (addColission) {
 						const vertices = child.geometry.attributes.position.array;
-						const indices = [...Array(vertices.length / 3).keys()];
-						// const indices = child.geometry.index;
+						// const indices = [...Array(vertices.length / 3).keys()]; // (FBX)
+						const indices = child.geometry.index.array; // (GLB)
+
+						child.getWorldPosition(worldPosition);
+						child.getWorldQuaternion (worldQuaternion);
 
 						const rigidBodyDesc = new this.#engine.RigidBodyDesc(this.#engine.RigidBodyType.Fixed);
 						const colliderDesc = new this.#engine.ColliderDesc(new this.#engine.TriMesh(vertices, indices));
 
-						rigidBodyDesc.setTranslation(child.position.x, child.position.y, child.position.z);
-						rigidBodyDesc.setRotation(child.quaternion);
+						rigidBodyDesc.setTranslation(worldPosition.x, worldPosition.y, worldPosition.z);
+						rigidBodyDesc.setRotation(worldQuaternion);
 
 						// All done, actually build the rigid-body.
 						const rigidBody = this.#world.createRigidBody(rigidBodyDesc);
 						this.#world.createCollider(colliderDesc, rigidBody);
-
-						console.log(child, vertices, indices);
 					}
 				} catch(e) {
 					console.error(e, child);
