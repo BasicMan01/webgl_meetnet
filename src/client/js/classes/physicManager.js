@@ -1,8 +1,17 @@
+import {
+	BufferAttribute,
+	Mesh,
+	Quaternion,
+	Vector3
+} from 'three';
+
 class PhysicManager {
 	#engine = {};
 
 	#objects = [];
 	#world = null;
+
+	#characterController = null;
 
 
 	constructor() {
@@ -13,7 +22,15 @@ class PhysicManager {
 			console.info('Physic Engine RAPIER loaded - Version: ' + RAPIER.version());
 
 			this.#engine = RAPIER;
-			this.#world = new this.#engine.World({ x: 0.0, y: -60, z: 0.0 });
+			this.#world = new this.#engine.World({ x: 0.0, y: -9.81, z: 0.0 });
+
+			this.#characterController = this.#world.createCharacterController(0.01);
+			this.#characterController.setUp({ x: 0.0, y: 1.0, z: 0.0 });
+			this.#characterController.setMaxSlopeClimbAngle(60 * Math.PI / 180);
+			// this.#characterController.setMinSlopeSlideAngle(45 * Math.PI / 180);
+			this.#characterController.setMinSlopeSlideAngle(60 * Math.PI / 180); // for stairs
+			this.#characterController.enableAutostep(0.3, 0.2, true);
+			this.#characterController.enableSnapToGround(0.5);
 
 			if (typeof callback === 'function') {
 				callback();
@@ -22,25 +39,65 @@ class PhysicManager {
 	}
 
 	addCollider(model) {
-		for (let i = 0; i < model.length; ++i) {
-			const child = model.children[i];
+		model.traverse((child) => {
+			const worldPosition = new Vector3();
+			const worldQuaternion = new Quaternion();
 
-			const vertices = child.geometry.attributes.position.array;
-			const indices = [...Array(vertices.length / 3).keys()];
+			if (child instanceof Mesh) {
+				try {
+					const addColission = child.userData.collision ? child.userData.collision : 0;
 
-			const rigidBodyDesc = new this.#engine.RigidBodyDesc(this.#engine.RigidBodyType.Fixed);
-			const colliderDesc = new this.#engine.ColliderDesc(new this.#engine.TriMesh(vertices, indices));
+					if (addColission) {
+						const vertices = child.geometry.attributes.position.array;
+						// const indices = [...Array(vertices.length / 3).keys()]; // (FBX)
+						const indices = child.geometry.index.array; // (GLB)
 
-			rigidBodyDesc.setTranslation(child.position.x, child.position.y, child.position.z);
-			rigidBodyDesc.setRotation(child.quaternion);
+						child.getWorldPosition(worldPosition);
+						child.getWorldQuaternion (worldQuaternion);
 
-			// All done, actually build the rigid-body.
-			const rigidBody = this._physicsWorld.createRigidBody(rigidBodyDesc);
-			this._physicsWorld.createCollider(colliderDesc, rigidBody);
-		}
+						const rigidBodyDesc = new this.#engine.RigidBodyDesc(this.#engine.RigidBodyType.Fixed);
+						const colliderDesc = new this.#engine.ColliderDesc(new this.#engine.TriMesh(vertices, indices));
+
+						rigidBodyDesc.setTranslation(worldPosition.x, worldPosition.y, worldPosition.z);
+						rigidBodyDesc.setRotation(worldQuaternion);
+
+						// All done, actually build the rigid-body.
+						const rigidBody = this.#world.createRigidBody(rigidBodyDesc);
+						this.#world.createCollider(colliderDesc, rigidBody);
+					}
+				} catch(e) {
+					console.error(e, child);
+				}
+			}
+		});
 	}
 
-	update() {
+	createCharacterCollider(character) {
+		const rigidBodyDesc = new this.#engine.RigidBodyDesc(this.#engine.RigidBodyType.KinematicPositionBased);
+		const colliderDesc = new this.#engine.ColliderDesc(new this.#engine.Capsule(0.45, 0.45)); // height / 2 / width
+
+		rigidBodyDesc.setTranslation(character.position.x, character.position.y, character.position.z);
+		rigidBodyDesc.setRotation(character.quaternion);
+
+		colliderDesc.translation.y = 0.91;
+
+		const rigidBody = this.#world.createRigidBody(rigidBodyDesc);
+		const collider = this.#world.createCollider(colliderDesc, rigidBody);
+
+		character.userData.rigidBody = rigidBody;
+		character.userData.rigidBodyDesc = rigidBodyDesc;
+		character.userData.collider = collider;
+	}
+
+	getNextMovement(collider, direction) {
+		const desiredPosition = new this.#engine.Vector3(direction.x, direction.y, direction.z);
+
+		this.#characterController.computeColliderMovement(collider, desiredPosition);
+
+		return this.#characterController.computedMovement();
+	}
+
+	update(debugHelper) {
 		// Update world
 		this.#world.step();
 
@@ -55,6 +112,10 @@ class PhysicManager {
 			obj.quaternion.set(r.x, r.y, r.z, r.w);
 		}
 
+		const buffers = this.#world.debugRender();
+
+		debugHelper.geometry.setAttribute('position', new BufferAttribute(buffers.vertices, 3));
+		debugHelper.geometry.setAttribute('color', new BufferAttribute(buffers.colors, 4));
 		/*
 		if (this._properties.debugHelperActive) {
 			const buffers = this._physicsWorld.debugRender();
