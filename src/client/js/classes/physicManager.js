@@ -1,5 +1,4 @@
 import {
-	BufferAttribute,
 	Mesh,
 	Quaternion,
 	Vector3
@@ -89,6 +88,10 @@ class PhysicManager {
 		character.userData.collider = collider;
 	}
 
+	debugRender() {
+		return this.#world.debugRender();
+	}
+
 	getNextMovement(collider, direction) {
 		const desiredPosition = new this.#engine.Vector3(direction.x, direction.y, direction.z);
 
@@ -97,7 +100,7 @@ class PhysicManager {
 		return this.#characterController.computedMovement();
 	}
 
-	update(debugHelper) {
+	update() {
 		// Update world
 		this.#world.step();
 
@@ -111,22 +114,6 @@ class PhysicManager {
 			obj.position.set(t.x, t.y, t.z);
 			obj.quaternion.set(r.x, r.y, r.z, r.w);
 		}
-
-		const buffers = this.#world.debugRender();
-
-		debugHelper.geometry.setAttribute('position', new BufferAttribute(buffers.vertices, 3));
-		debugHelper.geometry.setAttribute('color', new BufferAttribute(buffers.colors, 4));
-		/*
-		if (this._properties.debugHelperActive) {
-			const buffers = this._physicsWorld.debugRender();
-
-			this._debugHelper.geometry.setAttribute('position', new THREE.BufferAttribute(buffers.vertices, 3));
-			this._debugHelper.geometry.setAttribute('color', new THREE.BufferAttribute(buffers.colors, 4));
-		} else {
-			this._debugHelper.geometry.deleteAttribute('position');
-			this._debugHelper.geometry.deleteAttribute('color');
-		}
-		*/
 	}
 }
 

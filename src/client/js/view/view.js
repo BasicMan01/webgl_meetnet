@@ -1,5 +1,6 @@
 import {
 	AmbientLight,
+	BufferAttribute,
 	BufferGeometry,
 	Clock,
 	Color,
@@ -143,7 +144,7 @@ class View extends Observable {
 		this.#objectManager.add('character.female', 'resources/model/character/character_female.fbx');
 		this.#objectManager.add('character.male', 'resources/model/character/character_male.fbx');
 		this.#objectManager.add('character.animation.idle', 'resources/model/character/animation/idle.fbx');
-		this.#objectManager.add('character.animation.walk', 'resources/model/character/animation/walk.fbx');
+		this.#objectManager.add('character.animation.run', 'resources/model/character/animation/run.fbx');
 
 		this.#inputManager = new InputManager();
 
@@ -348,7 +349,18 @@ class View extends Observable {
 			this.#users[userId].update(timeDelta);
 		}
 
-		this.#physicManager.update(this.#debugHelper);
+		// Physic
+		this.#physicManager.update();
+
+		if (this.#inputManager.getKeyState(InputManager.KEY_0)) {
+			const buffers = this.#physicManager.debugRender();
+
+			this.#debugHelper.geometry.setAttribute('position', new BufferAttribute(buffers.vertices, 3));
+			this.#debugHelper.geometry.setAttribute('color', new BufferAttribute(buffers.colors, 4));
+		} else {
+			this.#debugHelper.geometry.deleteAttribute('position');
+			this.#debugHelper.geometry.deleteAttribute('color');
+		}
 
 		this.#stats.update();
 

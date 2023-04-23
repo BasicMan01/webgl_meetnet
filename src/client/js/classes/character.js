@@ -21,7 +21,7 @@ class Character {
 	#localUser;
 	#model = null;
 	#object = new Group();
-	#velocity = new Vector3(1.5, 9.81, 1.5);
+	#velocity = new Vector3(3.0, 9.81, 3.0); // for walk: 1.5 | for run: 3.0
 	#animations = {};
 
 	#mixer = null;
@@ -41,7 +41,9 @@ class Character {
 
 		this.#scene.add(this.#object);
 
-		this.#physicManager.createCharacterCollider(this.#object);
+		if (this.#physicManager) {
+			this.#physicManager.createCharacterCollider(this.#object);
+		}
 	}
 
 	destroy() {
@@ -90,8 +92,8 @@ class Character {
 				this.#setIdle(previewAction);
 				break;
 
-			case 'character.animation.walk':
-				this.#setWalk(previewAction);
+			case 'character.animation.run':
+				this.#setRun(previewAction);
 				break;
 		}
 	}
@@ -125,7 +127,7 @@ class Character {
 			objectManager.loadAll(
 				[
 					'character.animation.idle',
-					'character.animation.walk'
+					'character.animation.run'
 				],
 				(key, object) => {
 					this.#addAnimation(key, object.animations[0]);
@@ -140,7 +142,7 @@ class Character {
 	update(timeDelta) {
 		if (this.#inputManager) {
 			if (this.#inputManager.getKeyState(InputManager.KEY_W)) {
-				this.setAnimationState('character.animation.walk');
+				this.setAnimationState('character.animation.run');
 			} else {
 				this.setAnimationState('character.animation.idle');
 			}
@@ -171,42 +173,22 @@ class Character {
 			this.#object.position.add(correctedMovement);
 			this.#camera.position.add(correctedMovement);
 
+			// orbit controls rotate around new position
 			this.#controls.target.copy(
 				new Vector3(this.#object.position.x, this.#object.position.y + 1.7, this.#object.position.z)
 			);
 			this.#controls.update();
 
-			/*
-			if (this.#inputManager.getKeyState(InputManager.KEY_W)) {
-				const forward = new Vector3(0, 0, 1);
-
-				forward.applyQuaternion(this.#object.quaternion);
-				forward.normalize();
-
-				// for walk: timeDelta * 1.5
-				// for run: timeDelta * 3.0
-				forward.multiplyScalar(timeDelta * 1.5);
-
-				this.#object.position.add(forward);
-				this.#camera.position.add(forward);
-
-				// orbit controls rotate around new position
-				this.#controls.target.copy(new Vector3(this.#object.position.x, 1.7, this.#object.position.z));
-				this.#controls.update();
-			}
-			*/
 		} else {
-			if (this.getAnimationStateName() === 'character.animation.walk') {
-				const forward = new Vector3(0, 0, 1);
+			if (this.getAnimationStateName() === 'character.animation.run') {
+				const direction = new Vector3(0, 0, 1);
 
-				forward.applyQuaternion(this.#object.quaternion);
-				forward.normalize();
+				direction.applyQuaternion(this.#object.quaternion);
+				direction.normalize();
+				direction.multiply(this.#velocity);
+				direction.multiplyScalar(timeDelta);
 
-				// for walk: timeDelta * 1.5
-				// for run: timeDelta * 3.0
-				forward.multiplyScalar(timeDelta * 1.5);
-
-				this.#object.position.add(forward);
+				this.#object.position.add(direction);
 			}
 		}
 
@@ -275,8 +257,8 @@ class Character {
 		}
 	}
 
-	#setWalk(previewAction) {
-		const currentAction = this.#animations['character.animation.walk'].action;
+	#setRun(previewAction) {
+		const currentAction = this.#animations['character.animation.run'].action;
 
 		if (previewAction) {
 			currentAction.time = 0.0;
