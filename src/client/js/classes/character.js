@@ -145,7 +145,7 @@ class Character {
 				this.setAnimationState('character.animation.idle');
 			}
 
-			if (this.#inputManager.getMouseState(InputManager.MOUSE_LEFT)) {
+			if (this.#inputManager.getMouseState(InputManager.MOUSE_RIGHT)) {
 				const rotation = new Euler().setFromQuaternion(this.#camera.quaternion, 'YXZ');
 
 				this.#object.rotation.y = rotation.y + Math.PI;
