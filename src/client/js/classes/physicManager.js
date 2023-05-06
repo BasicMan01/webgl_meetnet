@@ -44,15 +44,14 @@ class PhysicManager {
 
 			if (child instanceof Mesh) {
 				try {
-					const addColission = child.userData.collision ? child.userData.collision : 0;
-
-					if (addColission) {
+					if (child.userData.collision) {
 						const vertices = child.geometry.attributes.position.array;
 						// const indices = [...Array(vertices.length / 3).keys()]; // (FBX)
 						const indices = child.geometry.index.array; // (GLB)
 
 						child.getWorldPosition(worldPosition);
 						child.getWorldQuaternion (worldQuaternion);
+						child.visible = false;
 
 						const rigidBodyDesc = new this.#engine.RigidBodyDesc(this.#engine.RigidBodyType.Fixed);
 						const colliderDesc = new this.#engine.ColliderDesc(new this.#engine.TriMesh(vertices, indices));

@@ -7,7 +7,6 @@ import {
 	DirectionalLight,
 	DirectionalLightHelper,
 	Fog,
-	GridHelper,
 	HemisphereLight,
 	LineBasicMaterial,
 	LineSegments,
@@ -74,7 +73,6 @@ class View extends Observable {
 	#stats = null;
 
 	#debugHelper = null;
-	#gridHelper = null;
 	#ambientLight = null;
 	#directionalLight = null;
 	#directionalLightHelper = null;
@@ -261,9 +259,6 @@ class View extends Observable {
 
 
 	#load() {
-		this.#gridHelper = new GridHelper(50, 50);
-		this.#scene.add(this.#gridHelper);
-
 		this.#debugHelper = new LineSegments(
 			new BufferGeometry(),
 			new LineBasicMaterial({
@@ -406,7 +401,7 @@ class View extends Observable {
 			this.#scene.fog.near = value;
 		});
 
-		folderScene.add(properties, 'sceneFogFar', 0, 50).step(0.5).onChange((value) => {
+		folderScene.add(properties, 'sceneFogFar', 0, 100).step(0.5).onChange((value) => {
 			this.#scene.fog.far = value;
 		});
 
