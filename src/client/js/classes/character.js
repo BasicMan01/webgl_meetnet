@@ -173,11 +173,28 @@ class Character {
 			this.#object.position.add(correctedMovement);
 			this.#camera.position.add(correctedMovement);
 
-			// orbit controls rotate around new position
-			this.#controls.target.copy(
-				new Vector3(this.#object.position.x, this.#object.position.y + 1.7, this.#object.position.z)
+			const characterTarget = new Vector3(
+				this.#object.position.x,
+				this.#object.position.y + 1.7,
+				this.#object.position.z
 			);
+
+			// orbit controls rotate around new position
+			this.#controls.target.copy(characterTarget);
 			this.#controls.update();
+
+
+			// camera collision
+			const rayDiff = characterTarget.clone().sub(this.#camera.position);
+			const rayDirection = rayDiff.clone().normalize();
+
+			const maxToi = rayDiff.length();
+			const ray = this.#physicManager.createRay(this.#camera.position, rayDirection);
+
+			const hit = this.#physicManager.castRay(ray, maxToi);
+			if (hit != null) {
+				this.#camera.position.add(rayDirection.multiplyScalar(hit.toi));
+			}
 
 		} else {
 			if (this.getAnimationStateName() === 'character.animation.run') {

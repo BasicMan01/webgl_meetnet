@@ -126,8 +126,8 @@ class View extends Observable {
 		this.#controls = new OrbitControls(this.#camera, this.#renderer.domElement);
 		this.#controls.enablePan = false;
 		this.#controls.enableZoom = true;
-		this.#controls.minDistance = 1.5;
-		this.#controls.maxDistance = 10.0;
+		this.#controls.minDistance = 0.3;
+		this.#controls.maxDistance = 8.0;
 		this.#controls.minPolarAngle = 0.1;
 		this.#controls.maxPolarAngle = 1.7;
 		this.#controls.mouseButtons = {

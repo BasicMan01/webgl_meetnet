@@ -70,6 +70,11 @@ class PhysicManager {
 		});
 	}
 
+	castRay(ray, maxToi, solid = false) {
+		// Use 4 to exclude Kinematic Collider
+		return this.#world.castRay(ray, maxToi, solid, 4)
+	}
+
 	createCharacterCollider(character) {
 		const rigidBodyDesc = new this.#engine.RigidBodyDesc(this.#engine.RigidBodyType.KinematicPositionBased);
 		const colliderDesc = new this.#engine.ColliderDesc(new this.#engine.Capsule(0.45, 0.45)); // height / 2 / width
@@ -85,6 +90,13 @@ class PhysicManager {
 		character.userData.rigidBody = rigidBody;
 		character.userData.rigidBodyDesc = rigidBodyDesc;
 		character.userData.collider = collider;
+	}
+
+	createRay(origin, direction) {
+		return new this.#engine.Ray(
+			{ x: origin.x, y: origin.y, z: origin.z },
+			{ x: direction.x, y: direction.y, z: direction.z }
+		);
 	}
 
 	debugRender() {
