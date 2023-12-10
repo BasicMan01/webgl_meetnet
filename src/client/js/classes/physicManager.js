@@ -72,7 +72,7 @@ class PhysicManager {
 
 	castRay(ray, maxToi, solid = false) {
 		// Use 4 to exclude Kinematic Collider
-		return this.#world.castRay(ray, maxToi, solid, 4)
+		return this.#world.castRay(ray, maxToi, solid, 4);
 	}
 
 	createCharacterCollider(character) {

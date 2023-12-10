@@ -240,6 +240,14 @@ class Character {
 		const size = new Vector3();
 		const sprite = SpriteUtil.createSprite(this.#name);
 
+		// bug in threejs by this change https://github.com/mrdoob/three.js/pull/25591
+		// null and undefined have different logic now
+		this.#model.traverse((child) => {
+			if (child?.boundingBox === null) {
+				delete child.boundingBox;
+			}
+		});
+
 		box3.setFromObject(this.#model).getSize(size);
 
 		sprite.scale.set(1, 0.5, 1);

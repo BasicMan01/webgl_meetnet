@@ -16,7 +16,6 @@ import {
 	Quaternion,
 	Scene,
 	ShaderMaterial,
-	sRGBEncoding,
 	Vector3,
 	WebGLRenderer
 } from 'three';
@@ -115,7 +114,6 @@ class View extends Observable {
 		this.#renderer = new WebGLRenderer({ antialias: true });
 		this.#renderer.setPixelRatio(window.devicePixelRatio);
 		this.#renderer.setSize(this.#getCanvasWidth(), this.#getCanvasHeight());
-		this.#renderer.outputEncoding = sRGBEncoding;
 
 		this.#stats = new Stats();
 
@@ -268,13 +266,13 @@ class View extends Observable {
 		);
 		this.#scene.add(this.#debugHelper);
 
-		this.#ambientLight = new AmbientLight(0x303030, 0.4);
+		this.#ambientLight = new AmbientLight(0x4f4f4f, 1.0);
 		this.#scene.add(this.#ambientLight);
 
-		this.#hemisphereLight = new HemisphereLight(0xFFFFFF, 0x080820, 0.5);
+		this.#hemisphereLight = new HemisphereLight(0xFFFFFF, 0x4f4f4f, 1.0);
 		this.#scene.add(this.#hemisphereLight);
 
-		this.#directionalLight = new DirectionalLight(0xFFFFFF, 0.5);
+		this.#directionalLight = new DirectionalLight(0xFFFFFF, 1.0);
 		this.#directionalLight.position.set(20, 100, 0);
 		this.#scene.add(this.#directionalLight);
 
